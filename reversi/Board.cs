@@ -24,7 +24,7 @@ namespace reversi
         public const int HEIGHT = 6;
 
         /// <summary>The current pieces on the board</summary>
-        private Piece[,] pieces;
+        public Piece[,] pieces;
 
         /// <summary>Which square currently should be highlighted, or (-1, -1) if none should be highlighted</summary>
         private Point highlightSquare = new Point(-1, -1);
