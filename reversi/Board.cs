@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Drawing.Drawing2D;
 
 namespace reversi
 {
@@ -125,6 +126,66 @@ namespace reversi
                 return false;
         }
 
+        /// <summary>Draws a smileys that looks towards the mouse</summary>
+        /// <param name="g">The graphics object that's used to draw the smiley</param>
+        /// <param name="color">The color to use for the background of the smiley</param>
+        /// <param name="x">The x-coordinate of the top-left corner of the smiley</param>
+        /// <param name="y">The y-coordinate of the top-left corner of the smiley</param>
+        /// <param name="size">The size (diameter) of the smiley</param>
+        private void drawSmiley(Graphics g, Brush color, int x, int y, int size)
+        {
+            // If the size is zero (or smaller), there is nothing to do
+            if(size <= 0.0f) return;
+            
+            // Draw the background of the smiley
+            g.FillEllipse(color, x, y, size, size);
+
+            // Draw the mouth
+            GraphicsPath mouthPath = new GraphicsPath();
+            mouthPath.StartFigure();
+            mouthPath.AddArc(x + 5.0f * size / 32, y + 3.0f * size / 32.0f, 11.0f * size / 16, 13.0f * size / 16, 0.0f, 180.0f);
+            mouthPath.CloseFigure();
+            g.FillPath(Brushes.White, mouthPath);
+            g.DrawPath(Pens.Black, mouthPath);
+
+
+            // Draw the eyes
+            drawSmileyEye(g, x + 5.0f * size / 32, y + size / 8.0f, 5.0f * size / 16);
+            drawSmileyEye(g, x + 17.0f * size / 32, y + size / 8.0f, 5.0f * size / 16);
+        }
+
+        /// <summary>Helper function for drawSmiley(), this draws an eye at the given location</summary>
+        /// <param name="g">The graphics object that's used to draw the eye</param>
+        /// <param name="x">The x-coordinate of the top-left corner of the eye</param>
+        /// <param name="y">The y-coordinate of the top-left corner of the eye</param>
+        /// <param name="size">The size (diameter) of the eye</param>
+        private void drawSmileyEye(Graphics g, float x, float y, float size)
+        {
+            // Get the mouse coordinates in client coordinates and add the translation of the graphics object
+            Point mouseCoords = PointToClient(MousePosition);
+            mouseCoords.X -= (int) g.Transform.OffsetX;
+            mouseCoords.Y -= (int) g.Transform.OffsetY;
+
+            // Determine the center x and center y of the smiley
+            float centerX = x + size / 2;
+            float centerY = y + size / 2;
+
+            // Draw the background of the eye
+            g.FillEllipse(Brushes.White, x, y, size, size);
+            g.DrawEllipse(Pens.Black, x, y, size, size);
+
+            // Draw the pupil
+            float pupilRadius = size / 10;
+            float dst = (float) Math.Sqrt(Math.Pow(mouseCoords.X - centerX, 2) + Math.Pow(mouseCoords.Y - centerY, 2));
+            if(dst <= size / 2 - pupilRadius)
+                g.FillEllipse(Brushes.Black, mouseCoords.X - pupilRadius, mouseCoords.Y - pupilRadius, pupilRadius * 2, pupilRadius * 2);
+            else
+            {
+                float factor = (size / 2 - pupilRadius) / dst;
+                g.FillEllipse(Brushes.Black, centerX - pupilRadius + (mouseCoords.X - centerX) * factor, centerY - pupilRadius + (mouseCoords.Y - centerY) * factor, pupilRadius * 2, pupilRadius * 2);
+            }
+        }
+
         private void Board_Paint(object sender, PaintEventArgs pea)
         {
             // We want fancy graphics :D
@@ -171,9 +232,7 @@ namespace reversi
                 {
                     if(pieces[x, y] == Piece.None) continue;
 
-                    pea.Graphics.FillEllipse(pieces[x, y] == Piece.Blue ? Brushes.Blue : Brushes.Red,
-                        x * squareSize + 1, y * squareSize + 1,
-                        squareSize - 2, squareSize - 2);
+                    drawSmiley(pea.Graphics, pieces[x, y] == Piece.Blue ? Brushes.Blue : Brushes.Red, x * squareSize + 1, y * squareSize + 1, squareSize - 2);
                 }
             }
         }
