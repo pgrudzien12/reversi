@@ -12,18 +12,27 @@ namespace reversi
 {
     public partial class MainWindow : Form
     {
-        /// <summary>Whose turn it currently is</summary>
-        private Board.Piece currTurn = Board.Piece.Red;
 
         public MainWindow()
         {
-            InitializeComponent();
+            InitializeComponent(this);
         }
 
         private void board_SquareClicked(Point square)
         {
-            if(board.MakeMove(square.X, square.Y, currTurn))
-                currTurn = currTurn == Board.Piece.Red ? Board.Piece.Blue : Board.Piece.Red;
+            if (board.MakeMove(square.X, square.Y, board.currStatus.currTurn))
+                board.currStatus.currTurn = board.currStatus.currTurn == Board.Piece.Red ? Board.Piece.Blue : Board.Piece.Red;
+        }
+
+        public void showScores(Board.GameStatus status)
+        {
+            scoreLabelBlue.Text = status.score[(int)Board.Piece.Blue].ToString();
+            scoreLabelRed.Text = status.score[(int)Board.Piece.Red].ToString();
+        }
+
+        public void showStatus(string status)
+        {
+            statusLabel.Text = status;
         }
     }
 }

@@ -13,9 +13,24 @@ namespace reversi
 {
     public partial class Board : Control
     {
+        /// <summary>The main window</summary>
+        private MainWindow window;
+
         /// <summary>The different pieces, the piece is either red, blue or there is no piece</summary>
         public enum Piece : byte
-        { None = 0, Red = 1, Blue = 2 }
+        { Blue = 0, Red = 1, None = 2 }
+
+        public struct GameStatus
+        {
+            public Board.Piece currTurn;
+            public int[] score;
+            public bool lastPassed;
+            public bool gameEnded;
+            public bool showHints;
+        }
+
+        /// <summary>The current status of the game</summary>
+        public GameStatus currStatus;
 
         /// <summary>The width of the board (must be at least 3)</summary>
         public const int WIDTH = 6;
@@ -40,8 +55,10 @@ namespace reversi
         public event SquareClickedEventHandler SquareClicked;
 
         /// <summary>Default constructor</summary>
-        public Board()
+        public Board(MainWindow window)
         {
+            this.window = window;
+
             // Initialize the control
             InitializeComponent();
 
@@ -66,64 +83,144 @@ namespace reversi
             pieces[WIDTH / 2, HEIGHT / 2 - 1] = Piece.Red;
             pieces[WIDTH / 2 - 1, HEIGHT / 2] = Piece.Red;
             pieces[WIDTH / 2, HEIGHT / 2] = Piece.Blue;
+
+            // Initialize a new game status
+            currStatus = new GameStatus();
+            currStatus.currTurn = Board.Piece.Red;
+            currStatus.score = new int[2] {2,2};
+            currStatus.gameEnded = false;
+            currStatus.showHints = true;
+        }
+
+        /// <summary>Returns all valid moves for a player</summary>
+        /// <param name="color">The player whose moves we have to check</param>
+        /// <returns>An array with all the valid moves for the player, empty if no moves possible</returns>
+        public Point[] ValidMoves(Piece color)
+        {
+            List<Point> Moves = new List<Point>();
+            for (int col = 0; col < WIDTH; ++col)
+            {
+                for (int row = 0; row < HEIGHT; ++row)
+                {
+                    // Making no move at all is always invalid
+                    if (color == Piece.None) continue;
+
+                    // Check if `col` and `row` are in the boundaries of the board and if (`col`, `row`) is an empty square
+                    if (pieces[col, row] != Piece.None)
+                        continue;
+
+                    // Flip over the pieces of the other color that become enclosed between two pieces of `color`
+                    bool piecesFlipped = false;                 // Whether or not some pieces are flipped over
+                    for (int dx = -1; dx <= 1; ++dx)
+                    {
+                        for (int dy = -1; dy <= 1; ++dy)
+                        {
+                            if (dx == 0 && dy == 0) continue;
+
+                            // Determine the amount of steps that we should go in the current direction until we encounter a piece of our own color
+                            // Then, if we find a piece of our own color, flip over all pieces in between
+                            // If we do encounter such a piece, or if we encounter an empty square first, we won't flip over any pieces
+                            ;
+                            for (int steps = 1; steps <= Math.Max(WIDTH, HEIGHT); ++steps)
+                            {
+                                int currX = col + steps * dx;
+                                int currY = row + steps * dy;
+                                if (currX < 0 || currX >= WIDTH || currY < 0 || currY >= HEIGHT || pieces[currX, currY] == Piece.None)
+                                    break;
+
+                                if (pieces[currX, currY] == color)
+                                {
+                                    if (steps > 1)
+                                        piecesFlipped = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // If we've flipped over some pieces, the move was valid
+                    // In that case we only need to place the new piece
+                    // If we haven't flipped over any pieces, then nothing has changed
+                    // In that case we simply return false
+                    if (piecesFlipped)
+                    {
+                        Moves.Add(new Point(col, row));
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+            }
+            
+            return Moves.ToArray();
         }
 
         /// <summary>Makes the given move for the given color</summary>
         /// <param name="col">The column where the piece should be placed</param>
         /// <param name="row">The row where the piece should be placed</param>
-        /// <returns>Whether the move was valid or not</returns>
+        /// <param name="color">The color whose move it is</param>
+        /// <returns>Whether the move succeeded or not</returns>
         public bool MakeMove(int col, int row, Piece color)
         {
-            // Making no move at all is always invalid
-            if(color == Piece.None) return false;
-
-            // Check if `col` and `row` are in the boundaries of the board and if (`col`, `row`) is an empty square
-            if(col < 0 || row < 0 || col >= WIDTH || row >= HEIGHT || pieces[col, row] != Piece.None)
-                return false;
+            Point MovePoint = new Point(col, row);
+            Point[] ValidMovesArray = ValidMoves(color);
+            if (!ValidMovesArray.Contains(MovePoint)) return false;
 
             // Flip over the pieces of the other color that become enclosed between two pieces of `color`
             bool piecesFlipped = false;                 // Whether or not some pieces are flipped over
-            for(int dx = -1; dx <= 1; ++dx)
+            for (int dx = -1; dx <= 1; ++dx)
             {
-                for(int dy = -1; dy <= 1; ++dy)
+                for (int dy = -1; dy <= 1; ++dy)
                 {
-                    if(dx == 0 && dy == 0) continue;
+                    if (dx == 0 && dy == 0) continue;
 
                     // Determine the amount of steps that we should go in the current direction until we encounter a piece of our own color
                     // Then, if we find a piece of our own color, flip over all pieces in between
                     // If we do encounter such a piece, or if we encounter an empty square first, we won't flip over any pieces
                     ;
-                    for(int steps = 1; steps <= Math.Max(WIDTH, HEIGHT); ++steps)
+                    for (int steps = 1; steps <= Math.Max(WIDTH, HEIGHT); ++steps)
                     {
                         int currX = col + steps * dx;
                         int currY = row + steps * dy;
-                        if(currX < 0 || currX >= WIDTH || currY < 0 || currY >= HEIGHT || pieces[currX, currY] == Piece.None)
+                        if (currX < 0 || currX >= WIDTH || currY < 0 || currY >= HEIGHT || pieces[currX, currY] == Piece.None)
                             break;
 
-                        if(pieces[currX, currY] == color)
+                        if (pieces[currX, currY] == color)
                         {
-                            if(steps > 1)
+                            if (steps > 1)
                                 piecesFlipped = true;
-                            for(int i = 1; i < steps; ++i)
+                            for (int i = 1; i < steps; ++i)
+                            {
                                 pieces[col + i * dx, row + i * dy] = color;
+                                currStatus.score[(int)color]++;
+                                currStatus.score[(int)(color == Piece.Red ? Piece.Blue : Piece.Red)]--;
+                            }
                             break;
                         }
                     }
                 }
             }
 
-            // If we've flipped over some pieces, the move was valid
-            // In that case we only need to place the new piece
-            // If we haven't flipped over any pieces, then nothing has changed
-            // In that case we simply return false
-            if(piecesFlipped)
+            // Now we only need to place the new marker and repaint
+            pieces[col, row] = color;
+            currStatus.score[(int)color]++;
+            Invalidate();
+
+            // If the next player can't play, let him skip the turn
+            if (ValidMoves((currStatus.currTurn == Piece.Red ? Piece.Blue : Piece.Red)).Length == 0)
             {
-                pieces[col, row] = color;
-                Invalidate();
-                return true;
+                // Check if the game has ended
+                if (ValidMoves(currStatus.currTurn).Length == 0)
+                {
+                    currStatus.gameEnded = true;
+                } else {
+                    currStatus.currTurn = currStatus.currTurn == Piece.Red ? Piece.Blue : Piece.Red;
+                    currStatus.lastPassed = true;
+                }
             }
-            else
-                return false;
+            else currStatus.lastPassed = false;
+            return piecesFlipped;
         }
 
         /// <summary>Draws a smileys that looks towards the mouse</summary>
@@ -188,6 +285,34 @@ namespace reversi
 
         private void Board_Paint(object sender, PaintEventArgs pea)
         {
+            window.showScores(currStatus);
+            if (currStatus.gameEnded)
+            {
+                if (currStatus.score[(int)Piece.Red] > currStatus.score[(int)Piece.Blue])
+                {
+                    window.showStatus("Rood heeft gewonnen");
+                }
+                else if (currStatus.score[(int)Piece.Red] == currStatus.score[(int)Piece.Blue])
+                {
+                    window.showStatus("Het is gelijkspel");
+                }
+                else if (currStatus.score[(int)Piece.Red] < currStatus.score[(int)Piece.Blue])
+                {
+                    window.showStatus("Blauw heeft gewonnen");
+                }
+            }
+            else
+            {
+                if (currStatus.lastPassed)
+                {
+                    window.showStatus(currStatus.currTurn == Piece.Red ? "Blauw heeft\nmoeten passen" : "Rood heeft\nmoeten passen");
+                }
+                else
+                {
+                    window.showStatus(currStatus.currTurn == Piece.Red ? "Rood is aan zet" : "Blauw is aan zet");
+                }
+            }
+
             // We want fancy graphics :D
             pea.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
@@ -233,6 +358,16 @@ namespace reversi
                     if(pieces[x, y] == Piece.None) continue;
 
                     drawSmiley(pea.Graphics, pieces[x, y] == Piece.Blue ? Brushes.Blue : Brushes.Red, x * squareSize + 1, y * squareSize + 1, squareSize - 2);
+                }
+            }
+
+            if (currStatus.showHints)
+            {
+                // Draw all possible moves
+                foreach (Point validMove in ValidMoves(currStatus.currTurn))
+                {
+                    drawSmiley(pea.Graphics, Brushes.Transparent, validMove.X * squareSize + 4, validMove.Y * squareSize + 4, squareSize - 8);
+                    // pea.Graphics.DrawEllipse(Pens.Black, validMove.X * squareSize + 4, validMove.Y * squareSize + 4, squareSize - 8, squareSize - 8);
                 }
             }
         }
