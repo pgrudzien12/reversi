@@ -31,13 +31,14 @@
             System.Windows.Forms.Label labelRedScoreHeader;
             System.Windows.Forms.TableLayoutPanel tableLayout;
             System.Windows.Forms.TableLayoutPanel tableLayoutControls;
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.labelBlueScoreHeader = new System.Windows.Forms.Label();
             this.labelScoreBlue = new System.Windows.Forms.Label();
             this.labelStatus = new System.Windows.Forms.Label();
             this.buttonNewGame = new System.Windows.Forms.Button();
             this.labelScoreRed = new System.Windows.Forms.Label();
-            this.board = new reversi.Board();
             this.checkHelp = new System.Windows.Forms.CheckBox();
+            this.board = new reversi.Board();
             labelRedScoreHeader = new System.Windows.Forms.Label();
             tableLayout = new System.Windows.Forms.TableLayoutPanel();
             tableLayoutControls = new System.Windows.Forms.TableLayoutPanel();
@@ -164,20 +165,6 @@
             this.labelScoreRed.Text = "2";
             this.labelScoreRed.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // board
-            // 
-            this.board.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.board.Cursor = System.Windows.Forms.Cursors.Default;
-            this.board.Location = new System.Drawing.Point(3, 153);
-            this.board.Name = "board";
-            this.board.ShowHints = true;
-            this.board.Size = new System.Drawing.Size(420, 420);
-            this.board.TabIndex = 2;
-            this.board.SquareClicked += new reversi.Board.SquareClickedEventHandler(this.board_SquareClicked);
-            this.board.UpdateStatus += new reversi.Board.UpdateStatusEventHandler(this.board_UpdateStatus);
-            // 
             // checkHelp
             // 
             this.checkHelp.Appearance = System.Windows.Forms.Appearance.Button;
@@ -195,12 +182,27 @@
             this.checkHelp.UseVisualStyleBackColor = true;
             this.checkHelp.CheckedChanged += new System.EventHandler(this.checkHelp_CheckedChanged);
             // 
+            // board
+            // 
+            this.board.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.board.Cursor = System.Windows.Forms.Cursors.Default;
+            this.board.Location = new System.Drawing.Point(3, 153);
+            this.board.Name = "board";
+            this.board.ShowHints = true;
+            this.board.Size = new System.Drawing.Size(420, 420);
+            this.board.TabIndex = 2;
+            this.board.SquareClicked += new reversi.Board.SquareClickedEventHandler(this.board_SquareClicked);
+            this.board.UpdateStatus += new reversi.Board.UpdateStatusEventHandler(this.board_UpdateStatus);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(426, 576);
             this.Controls.Add(tableLayout);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = this.Size;
             this.Name = "MainWindow";
             this.Text = "Reversi";
