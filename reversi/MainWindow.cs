@@ -12,27 +12,54 @@ namespace reversi
 {
     public partial class MainWindow : Form
     {
-
         public MainWindow()
         {
-            InitializeComponent(this);
+            InitializeComponent();
         }
 
         private void board_SquareClicked(Point square)
         {
-            if (board.MakeMove(square.X, square.Y, board.currStatus.currTurn))
-                board.currStatus.currTurn = board.currStatus.currTurn == Board.Piece.Red ? Board.Piece.Blue : Board.Piece.Red;
+            board.MakeMove(square.X, square.Y);
         }
 
-        public void showScores(Board.GameStatus status)
+        private void board_UpdateStatus()
         {
-            scoreLabelBlue.Text = status.score[(int)Board.Piece.Blue].ToString();
-            scoreLabelRed.Text = status.score[(int)Board.Piece.Red].ToString();
+            // Get the scores
+            int redScore = board.Score(Board.Piece.Red);
+            int blueScore = board.Score(Board.Piece.Blue);
+
+            // Update the scores
+            labelScoreBlue.Text = blueScore.ToString();
+            labelScoreRed.Text = redScore.ToString();
+
+            // Update the status label
+            if(board.GameEnded)
+            {
+                if(redScore > blueScore)
+                    labelStatus.Text = "Rood heeft gewonnen";
+                else if(redScore == blueScore)
+                    labelStatus.Text = "Het is gelijkspel";
+                else if(redScore < blueScore)
+                    labelStatus.Text = "Blauw heeft gewonnen";
+            }
+            else
+            {
+                if(board.LastPassed)
+                    labelStatus.Text = board.CurrentTurn == Board.Piece.Red ? "Blauw heeft moeten passen" : "Rood heeft moeten passen";
+                else
+                    labelStatus.Text = board.CurrentTurn == Board.Piece.Red ? "Rood is aan zet" : "Blauw is aan zet";
+            }
         }
 
-        public void showStatus(string status)
+        private void buttonNewGame_Click(object sender, EventArgs e)
         {
-            statusLabel.Text = status;
+            board.ClearBoard();
+        }
+
+        private void checkHelp_CheckedChanged(object sender, EventArgs e)
+        {
+            board.ShowHints = checkHelp.Checked;
+            board.RefreshBoard();
         }
     }
 }
