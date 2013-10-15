@@ -31,10 +31,10 @@ namespace reversi
         }
 
         /// <summary>The width of the board (must be at least 3)</summary>
-        public const int WIDTH = 6;
+        public const int WIDTH = 10;
 
         /// <summary>The height of the board (must be at least 3)</summary>
-        public const int HEIGHT = 6;
+        public const int HEIGHT = 10;
 
         /// <summary>The current pieces on the board</summary>
         public Piece[,] pieces;
@@ -358,8 +358,10 @@ namespace reversi
             // If the control is too small, we stop here
             if(squareSize == 0) return;
 
-            // Draw the highlighted square
-            if(mouseDownSquare.X >= 0 && mouseDownSquare.Y >= 0 && mouseDownSquare.X < WIDTH && mouseDownSquare.Y < HEIGHT)
+            // Draw the highlighted square, but only if the game hasn't ended yet
+            if(currStatus.gameEnded)
+                Cursor = Cursors.Default;
+            else if(mouseDownSquare.X >= 0 && mouseDownSquare.Y >= 0 && mouseDownSquare.X < WIDTH && mouseDownSquare.Y < HEIGHT)
             {
                 if(pieces[mouseDownSquare.X, mouseDownSquare.Y] == Piece.None)
                 {
