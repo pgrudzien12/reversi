@@ -31,10 +31,10 @@ namespace reversi
         }
 
         /// <summary>The width of the board (must be at least 3)</summary>
-        public const int WIDTH = 10;
+        public const int WIDTH = 6;
 
         /// <summary>The height of the board (must be at least 3)</summary>
-        public const int HEIGHT = 10;
+        public const int HEIGHT = 6;
 
         /// <summary>The current pieces on the board</summary>
         public Piece[,] pieces;
