@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace reversi
 {
@@ -46,11 +43,16 @@ namespace reversi
         public bool MakeMove(int col, int row, Piece color)
         {
             // Making no move at all is always invalid
-            if (color == Piece.None) return false;
+            if (color == Piece.None)
+            {
+                return false;
+            }
 
             // Check if `col` and `row` are in the boundaries of the board and if (`col`, `row`) is an empty square
             if (col < 0 || row < 0 || col >= WIDTH || row >= HEIGHT || pieces[col, row] != Piece.None)
+            {
                 return false;
+            }
 
             // Flip over the pieces of the other color that become enclosed between two pieces of `color`
             bool piecesFlipped = false;                 // Whether or not some pieces are flipped over
@@ -58,7 +60,10 @@ namespace reversi
             {
                 for (int dy = -1; dy <= 1; ++dy)
                 {
-                    if (dx == 0 && dy == 0) continue;
+                    if (dx == 0 && dy == 0)
+                    {
+                        continue;
+                    }
 
                     // Determine the amount of steps that we should go in the current direction until we encounter a piece of our own color
                     // Then, if we find a piece of our own color, flip over all pieces in between
@@ -68,14 +73,22 @@ namespace reversi
                         int currX = col + steps * dx;
                         int currY = row + steps * dy;
                         if (currX < 0 || currX >= WIDTH || currY < 0 || currY >= HEIGHT || pieces[currX, currY] == Piece.None)
+                        {
                             break;
+                        }
 
                         if (pieces[currX, currY] == color)
                         {
                             if (steps > 1)
+                            {
                                 piecesFlipped = true;
+                            }
+
                             for (int i = 1; i < steps; ++i)
+                            {
                                 pieces[col + i * dx, row + i * dy] = color;
+                            }
+
                             break;
                         }
                     }
@@ -83,7 +96,10 @@ namespace reversi
             }
 
             // If no pieces were flipped, the move wasn't valid
-            if (!piecesFlipped) return false;
+            if (!piecesFlipped)
+            {
+                return false;
+            }
 
             // Now we only need to place the new piece
             pieces[col, row] = color;
@@ -93,9 +109,13 @@ namespace reversi
             {
                 // Check if the game has ended
                 if (ValidMoves(currStatus.currTurn).Length == 0)
+                {
                     currStatus.gameEnded = true;
+                }
                 else
+                {
                     currStatus.lastPassed = true;
+                }
             }
             else
             {
@@ -112,8 +132,12 @@ namespace reversi
             // Create an array of pieces where all pieces are set to Piece.None
             pieces = new Piece[WIDTH, HEIGHT];
             for (int x = 0; x < WIDTH; ++x)
+            {
                 for (int y = 0; y < HEIGHT; ++y)
+                {
                     pieces[x, y] = Piece.None;
+                }
+            }
 
             // Place the initial board.pieces in the middle of the board
             pieces[WIDTH / 2 - 1, HEIGHT / 2 - 1] = Piece.Blue;
@@ -139,10 +163,16 @@ namespace reversi
                 for (int row = 0; row < HEIGHT; ++row)
                 {
                     // Making no move at all is always invalid
-                    if (color == Piece.None) continue;
+                    if (color == Piece.None)
+                    {
+                        continue;
+                    }
 
                     // Check if `col` and `row` are in the boundaries of the board and if (`col`, `row`) is an empty square
-                    if (pieces[col, row] != Piece.None) continue;
+                    if (pieces[col, row] != Piece.None)
+                    {
+                        continue;
+                    }
 
                     // Flip over the board.pieces of the other color that become enclosed between two board.pieces of `color`
                     bool piecesFlipped = false;                 // Whether or not some pieces are flipped over
@@ -150,7 +180,10 @@ namespace reversi
                     {
                         for (int dy = -1; dy <= 1; ++dy)
                         {
-                            if (dx == 0 && dy == 0) continue;
+                            if (dx == 0 && dy == 0)
+                            {
+                                continue;
+                            }
 
                             // Determine the amount of steps that we should go in the current direction until we encounter a piece of our own color
                             // Then, if we find a piece of our own color, flip over all pieces in between
@@ -160,7 +193,9 @@ namespace reversi
                                 int currX = col + steps * dx;
                                 int currY = row + steps * dy;
                                 if (currX < 0 || currX >= WIDTH || currY < 0 || currY >= HEIGHT || pieces[currX, currY] == Piece.None)
+                                {
                                     break;
+                                }
 
                                 if (pieces[currX, currY] == color)
                                 {
@@ -176,9 +211,13 @@ namespace reversi
                     // If we haven't flipped over any pieces, then nothing has changed
                     // In that case we simply return false
                     if (piecesFlipped)
+                    {
                         Moves.Add(new MoveDescriptor(col, row));
+                    }
                     else
+                    {
                         continue;
+                    }
                 }
             }
 
@@ -196,7 +235,9 @@ namespace reversi
                 for (int row = 0; row < HEIGHT; ++row)
                 {
                     if (pieces[col, row] == color)
+                    {
                         ++score;
+                    }
                 }
             }
             return score;

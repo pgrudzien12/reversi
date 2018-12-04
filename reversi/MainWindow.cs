@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace reversi
@@ -33,21 +27,31 @@ namespace reversi
             labelScoreRed.Text = redScore.ToString();
 
             // Update the status label
-            if(board.GameEnded)
+            if (board.GameEnded)
             {
-                if(redScore > blueScore)
+                if (redScore > blueScore)
+                {
                     labelStatus.Text = "Red has won";
-                else if(redScore == blueScore)
+                }
+                else if (redScore == blueScore)
+                {
                     labelStatus.Text = "It is a draw";
-                else if(redScore < blueScore)
+                }
+                else if (redScore < blueScore)
+                {
                     labelStatus.Text = "Blue has won";
+                }
             }
             else
             {
-                if(board.LastPassed)
+                if (board.LastPassed)
+                {
                     labelStatus.Text = board.CurrentTurn == Piece.Red ? "Blue had to pass" : "Red had to pass";
+                }
                 else
+                {
                     labelStatus.Text = board.CurrentTurn == Piece.Red ? "Red is on move" : "Blue is on move";
+                }
             }
         }
 

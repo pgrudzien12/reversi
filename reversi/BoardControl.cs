@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Drawing.Drawing2D;
 
 namespace reversi
 {
@@ -20,8 +13,10 @@ namespace reversi
 
         internal void MakeMove(int x, int y)
         {
-            if (board.MakeMove(x,y))
+            if (board.MakeMove(x, y))
+            {
                 RefreshBoard();
+            }
         }
 
         /// <summary>Which square currently should be highlighted, or (-1, -1) if none should be highlighted</summary>
@@ -113,8 +108,11 @@ namespace reversi
         private void drawSmiley(Graphics g, Brush color, int x, int y, int size)
         {
             // If the size is zero (or smaller), there is nothing to do
-            if(size <= 0.0f) return;
-            
+            if (size <= 0.0f)
+            {
+                return;
+            }
+
             // Draw the background of the smiley
             g.FillEllipse(color, x, y, size, size);
 
@@ -140,8 +138,8 @@ namespace reversi
         {
             // Get the mouse coordinates in client coordinates and add the translation of the graphics object
             Point mouseCoords = PointToClient(MousePosition);
-            mouseCoords.X -= (int) g.Transform.OffsetX;
-            mouseCoords.Y -= (int) g.Transform.OffsetY;
+            mouseCoords.X -= (int)g.Transform.OffsetX;
+            mouseCoords.Y -= (int)g.Transform.OffsetY;
 
             // Determine the center x and center y of the smiley
             float centerX = x + size / 2;
@@ -153,9 +151,11 @@ namespace reversi
 
             // Draw the pupil
             float pupilRadius = size / 10;
-            float dst = (float) Math.Sqrt(Math.Pow(mouseCoords.X - centerX, 2) + Math.Pow(mouseCoords.Y - centerY, 2));
-            if(dst <= size / 2 - pupilRadius)
+            float dst = (float)Math.Sqrt(Math.Pow(mouseCoords.X - centerX, 2) + Math.Pow(mouseCoords.Y - centerY, 2));
+            if (dst <= size / 2 - pupilRadius)
+            {
                 g.FillEllipse(Brushes.Black, mouseCoords.X - pupilRadius, mouseCoords.Y - pupilRadius, pupilRadius * 2, pupilRadius * 2);
+            }
             else
             {
                 float factor = (size / 2 - pupilRadius) / dst;
@@ -169,58 +169,78 @@ namespace reversi
             pea.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
             // Calculate the size of a square, and the translation of the board (so it's centred)
-            int squareSize = (int) Math.Min(Width / WIDTH, Height / HEIGHT);
+            int squareSize = Math.Min(Width / WIDTH, Height / HEIGHT);
             pea.Graphics.TranslateTransform((Width - WIDTH * squareSize) / 2, (Height - HEIGHT * squareSize) / 2);
 
             // If the control is too small, we stop here
-            if(squareSize == 0) return;
+            if (squareSize == 0)
+            {
+                return;
+            }
 
             // Draw the highlighted square, but only if the game hasn't ended yet
-            if(board.currStatus.gameEnded)
-                Cursor = Cursors.Default;
-            else if(mouseDownSquare.X >= 0 && mouseDownSquare.Y >= 0 && mouseDownSquare.X < WIDTH && mouseDownSquare.Y < HEIGHT)
+            if (board.currStatus.gameEnded)
             {
-                if(board[mouseDownSquare.X, mouseDownSquare.Y] == Piece.None)
+                Cursor = Cursors.Default;
+            }
+            else if (mouseDownSquare.X >= 0 && mouseDownSquare.Y >= 0 && mouseDownSquare.X < WIDTH && mouseDownSquare.Y < HEIGHT)
+            {
+                if (board[mouseDownSquare.X, mouseDownSquare.Y] == Piece.None)
                 {
                     pea.Graphics.FillRectangle(Brushes.Black, mouseDownSquare.X * squareSize, mouseDownSquare.Y * squareSize, squareSize, squareSize);
                     Cursor = Cursors.Hand;
                 }
                 else
+                {
                     Cursor = Cursors.Default;
+                }
             }
-            else if(highlightSquare.X >= 0 && highlightSquare.Y >= 0 && highlightSquare.X < WIDTH && highlightSquare.Y < HEIGHT && board[highlightSquare.X, highlightSquare.Y] == Piece.None)
+            else if (highlightSquare.X >= 0 && highlightSquare.Y >= 0 && highlightSquare.X < WIDTH && highlightSquare.Y < HEIGHT && board[highlightSquare.X, highlightSquare.Y] == Piece.None)
             {
                 pea.Graphics.FillRectangle(Brushes.DarkGray, highlightSquare.X * squareSize, highlightSquare.Y * squareSize, squareSize, squareSize);
                 Cursor = Cursors.Hand;
             }
             else
+            {
                 Cursor = Cursors.Default;
+            }
 
             // Draw the board
-            for(int i = 0; i < WIDTH; ++i)
+            for (int i = 0; i < WIDTH; ++i)
+            {
                 pea.Graphics.DrawLine(Pens.Black, i * squareSize, 0, i * squareSize, HEIGHT * squareSize - 1);
+            }
+
             pea.Graphics.DrawLine(Pens.Black, WIDTH * squareSize - 1, 0, WIDTH * squareSize - 1, HEIGHT * squareSize - 1);
-            for(int i = 0; i < HEIGHT; ++i)
+            for (int i = 0; i < HEIGHT; ++i)
+            {
                 pea.Graphics.DrawLine(Pens.Black, 0, i * squareSize, WIDTH * squareSize - 1, i * squareSize);
+            }
+
             pea.Graphics.DrawLine(Pens.Black, 0, HEIGHT * squareSize - 1, WIDTH * squareSize - 1, HEIGHT * squareSize - 1);
 
             // Draw the pieces
-            for(int x = 0; x < WIDTH; ++x)
+            for (int x = 0; x < WIDTH; ++x)
             {
-                for(int y = 0; y < HEIGHT; ++y)
+                for (int y = 0; y < HEIGHT; ++y)
                 {
-                    if (board[x, y] == Piece.None) continue;
+                    if (board[x, y] == Piece.None)
+                    {
+                        continue;
+                    }
 
                     drawSmiley(pea.Graphics, GetBrushColor(x, y), x * squareSize + 1, y * squareSize + 1, squareSize - 2);
                 }
             }
 
             // Draw the hints (all possible moves)
-            if(board.currStatus.showHints)
+            if (board.currStatus.showHints)
             {
                 MoveDescriptor[] validMoves = board.ValidMoves(board.currStatus.currTurn);
-                foreach(MoveDescriptor validMove in validMoves)
-                    drawSmiley(pea.Graphics, Brushes.Gray, validMove.X * squareSize+20, validMove.Y * squareSize + 20, squareSize/4);
+                foreach (MoveDescriptor validMove in validMoves)
+                {
+                    drawSmiley(pea.Graphics, Brushes.Gray, validMove.X * squareSize + 20, validMove.Y * squareSize + 20, squareSize / 4);
+                }
             }
         }
 
@@ -231,18 +251,23 @@ namespace reversi
 
         private void Board_MouseMove(object sender, MouseEventArgs mea)
         {
-            int squareSize = (int) Math.Min(Width / WIDTH, Height / HEIGHT);    // Calculate the size of a square
+            int squareSize = Math.Min(Width / WIDTH, Height / HEIGHT);    // Calculate the size of a square
             int transX = (Width - WIDTH * squareSize) / 2;                      // The horizontal translation of the board
             int transY = (Height - HEIGHT * squareSize) / 2;                    // The vertical translation of the board
 
             // If the control is too small, we stop here
-            if(squareSize == 0) return;
+            if (squareSize == 0)
+            {
+                return;
+            }
 
             // Calculate the square that we're hovering above and redraw the board
             highlightSquare = new Point((mea.X - transX) / squareSize, (mea.Y - transY) / squareSize);
-            if(mea.X < transX || mea.Y < transY || highlightSquare.X < 0 || highlightSquare.Y < 0 || highlightSquare.X >= WIDTH || highlightSquare.Y >= HEIGHT)
+            if (mea.X < transX || mea.Y < transY || highlightSquare.X < 0 || highlightSquare.Y < 0 || highlightSquare.X >= WIDTH || highlightSquare.Y >= HEIGHT)
+            {
                 highlightSquare = new Point(-1, -1);
-            
+            }
+
             // Repaint
             Invalidate();
         }
@@ -262,8 +287,11 @@ namespace reversi
 
         private void Board_MouseUp(object sender, MouseEventArgs e)
         {
-            if(SquareClicked != null && mouseDownSquare.Equals(highlightSquare) && mouseDownSquare.X >= 0 && mouseDownSquare.Y >= 0 && mouseDownSquare.X < WIDTH && mouseDownSquare.Y < HEIGHT)
+            if (SquareClicked != null && mouseDownSquare.Equals(highlightSquare) && mouseDownSquare.X >= 0 && mouseDownSquare.Y >= 0 && mouseDownSquare.X < WIDTH && mouseDownSquare.Y < HEIGHT)
+            {
                 SquareClicked(mouseDownSquare);
+            }
+
             mouseDownSquare = new Point(-1, -1);
             Invalidate();
         }
