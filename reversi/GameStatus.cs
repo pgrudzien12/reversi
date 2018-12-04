@@ -12,7 +12,5 @@
 
         /// <summary>Whether or not to show hints</summary>
         public bool showHints;
-
-
     }
 }

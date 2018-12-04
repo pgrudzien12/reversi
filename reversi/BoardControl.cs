@@ -62,22 +62,7 @@ namespace reversi
         /// <summary>Clears the board, places the initial pieces and resets the game status</summary>
         public void ClearBoard()
         {
-            // Create an array of pieces where all pieces are set to Piece.None
-            board.pieces = new Piece[WIDTH, HEIGHT];
-            for(int x = 0; x < WIDTH; ++x)
-                for(int y = 0; y < HEIGHT; ++y)
-                    board.pieces[x, y] = Piece.None;
-
-            // Place the initial board.pieces in the middle of the board
-            board.pieces[WIDTH / 2 - 1, HEIGHT / 2 - 1] = Piece.Blue;
-            board.pieces[WIDTH / 2, HEIGHT / 2 - 1] = Piece.Red;
-            board.pieces[WIDTH / 2 - 1, HEIGHT / 2] = Piece.Red;
-            board.pieces[WIDTH / 2, HEIGHT / 2] = Piece.Blue;
-
-            // Initialize a new game status
-            board.currStatus.currTurn = Piece.Red;
-            board.currStatus.gameEnded = false;
-            board.currStatus.lastPassed = false;
+            board.ClearBoard();
 
             // Refresh the board
             RefreshBoard();
@@ -224,9 +209,9 @@ namespace reversi
             {
                 for(int y = 0; y < HEIGHT; ++y)
                 {
-                    if(board.pieces[x, y] == Piece.None) continue;
+                    if (board.pieces[x, y] == Piece.None) continue;
 
-                    drawSmiley(pea.Graphics, board.pieces[x, y] == Piece.Blue ? Brushes.Blue : Brushes.Red, x * squareSize + 1, y * squareSize + 1, squareSize - 2);
+                    drawSmiley(pea.Graphics, GetBrushColor(x, y), x * squareSize + 1, y * squareSize + 1, squareSize - 2);
                 }
             }
 
@@ -235,8 +220,13 @@ namespace reversi
             {
                 MoveDescriptor[] validMoves = board.ValidMoves(board.currStatus.currTurn);
                 foreach(MoveDescriptor validMove in validMoves)
-                    drawSmiley(pea.Graphics, Brushes.Transparent, validMove.X * squareSize + 4, validMove.Y * squareSize + 4, squareSize - 8);
+                    drawSmiley(pea.Graphics, Brushes.Gray, validMove.X * squareSize+20, validMove.Y * squareSize + 20, squareSize/4);
             }
+        }
+
+        private Brush GetBrushColor(int x, int y)
+        {
+            return board.pieces[x, y] == Piece.Blue ? Brushes.Blue : Brushes.Red;
         }
 
         private void Board_MouseMove(object sender, MouseEventArgs mea)

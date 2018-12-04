@@ -100,6 +100,26 @@ namespace reversi
             return true;
         }
 
+        public void ClearBoard()
+        {
+            // Create an array of pieces where all pieces are set to Piece.None
+            pieces = new Piece[WIDTH, HEIGHT];
+            for (int x = 0; x < WIDTH; ++x)
+                for (int y = 0; y < HEIGHT; ++y)
+                    pieces[x, y] = Piece.None;
+
+            // Place the initial board.pieces in the middle of the board
+            pieces[WIDTH / 2 - 1, HEIGHT / 2 - 1] = Piece.Blue;
+            pieces[WIDTH / 2, HEIGHT / 2 - 1] = Piece.Red;
+            pieces[WIDTH / 2 - 1, HEIGHT / 2] = Piece.Red;
+            pieces[WIDTH / 2, HEIGHT / 2] = Piece.Blue;
+
+            // Initialize a new game status
+            currStatus.currTurn = Piece.Red;
+            currStatus.gameEnded = false;
+            currStatus.lastPassed = false;
+        }
+
 
         /// <summary>Returns all valid moves for a player</summary>
         /// <param name="color">The player whose moves we have to check</param>
