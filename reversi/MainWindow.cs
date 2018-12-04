@@ -36,18 +36,18 @@ namespace reversi
             if(board.GameEnded)
             {
                 if(redScore > blueScore)
-                    labelStatus.Text = "Rood heeft gewonnen";
+                    labelStatus.Text = "Red has won";
                 else if(redScore == blueScore)
-                    labelStatus.Text = "Het is gelijkspel";
+                    labelStatus.Text = "It is a draw";
                 else if(redScore < blueScore)
-                    labelStatus.Text = "Blauw heeft gewonnen";
+                    labelStatus.Text = "Blue has won";
             }
             else
             {
                 if(board.LastPassed)
-                    labelStatus.Text = board.CurrentTurn == Piece.Red ? "Blauw heeft moeten passen" : "Rood heeft moeten passen";
+                    labelStatus.Text = board.CurrentTurn == Piece.Red ? "Blue had to pass" : "Red had to pass";
                 else
-                    labelStatus.Text = board.CurrentTurn == Piece.Red ? "Rood is aan zet" : "Blauw is aan zet";
+                    labelStatus.Text = board.CurrentTurn == Piece.Red ? "Red is on move" : "Blue is on move";
             }
         }
 
