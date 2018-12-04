@@ -180,7 +180,7 @@ namespace reversi
                 Cursor = Cursors.Default;
             else if(mouseDownSquare.X >= 0 && mouseDownSquare.Y >= 0 && mouseDownSquare.X < WIDTH && mouseDownSquare.Y < HEIGHT)
             {
-                if(board.pieces[mouseDownSquare.X, mouseDownSquare.Y] == Piece.None)
+                if(board[mouseDownSquare.X, mouseDownSquare.Y] == Piece.None)
                 {
                     pea.Graphics.FillRectangle(Brushes.Black, mouseDownSquare.X * squareSize, mouseDownSquare.Y * squareSize, squareSize, squareSize);
                     Cursor = Cursors.Hand;
@@ -188,7 +188,7 @@ namespace reversi
                 else
                     Cursor = Cursors.Default;
             }
-            else if(highlightSquare.X >= 0 && highlightSquare.Y >= 0 && highlightSquare.X < WIDTH && highlightSquare.Y < HEIGHT && board.pieces[highlightSquare.X, highlightSquare.Y] == Piece.None)
+            else if(highlightSquare.X >= 0 && highlightSquare.Y >= 0 && highlightSquare.X < WIDTH && highlightSquare.Y < HEIGHT && board[highlightSquare.X, highlightSquare.Y] == Piece.None)
             {
                 pea.Graphics.FillRectangle(Brushes.DarkGray, highlightSquare.X * squareSize, highlightSquare.Y * squareSize, squareSize, squareSize);
                 Cursor = Cursors.Hand;
@@ -209,7 +209,7 @@ namespace reversi
             {
                 for(int y = 0; y < HEIGHT; ++y)
                 {
-                    if (board.pieces[x, y] == Piece.None) continue;
+                    if (board[x, y] == Piece.None) continue;
 
                     drawSmiley(pea.Graphics, GetBrushColor(x, y), x * squareSize + 1, y * squareSize + 1, squareSize - 2);
                 }
@@ -226,7 +226,7 @@ namespace reversi
 
         private Brush GetBrushColor(int x, int y)
         {
-            return board.pieces[x, y] == Piece.Blue ? Brushes.Blue : Brushes.Red;
+            return board[x, y] == Piece.Blue ? Brushes.Blue : Brushes.Red;
         }
 
         private void Board_MouseMove(object sender, MouseEventArgs mea)

@@ -15,10 +15,17 @@ namespace reversi
         public const int HEIGHT = 8;
 
         /// <summary>The current pieces on the board</summary>
-        public Piece[,] pieces;
+        private Piece[,] pieces;
 
         /// <summary>The current status of the game</summary>
         public GameStatus currStatus = new GameStatus();
+        public Piece this[int x, int y]
+        {
+            get
+            {
+                return pieces[x, y];
+            }
+        }
 
 
         /// <summary>Makes the given move for the color whose turn it currently is</summary>
