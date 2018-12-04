@@ -1,6 +1,6 @@
 ﻿namespace reversi
 {
-    partial class Board
+    partial class BoardControl
     {
         /// <summary> 
         /// Required designer variable.

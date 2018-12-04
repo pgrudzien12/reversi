@@ -25,8 +25,8 @@ namespace reversi
         private void board_UpdateStatus()
         {
             // Get the scores
-            int redScore = board.Score(Board.Piece.Red);
-            int blueScore = board.Score(Board.Piece.Blue);
+            int redScore = board.board.Score(Piece.Red);
+            int blueScore = board.board.Score(Piece.Blue);
 
             // Update the scores
             labelScoreBlue.Text = blueScore.ToString();
@@ -45,9 +45,9 @@ namespace reversi
             else
             {
                 if(board.LastPassed)
-                    labelStatus.Text = board.CurrentTurn == Board.Piece.Red ? "Blauw heeft moeten passen" : "Rood heeft moeten passen";
+                    labelStatus.Text = board.CurrentTurn == Piece.Red ? "Blauw heeft moeten passen" : "Rood heeft moeten passen";
                 else
-                    labelStatus.Text = board.CurrentTurn == Board.Piece.Red ? "Rood is aan zet" : "Blauw is aan zet";
+                    labelStatus.Text = board.CurrentTurn == Piece.Red ? "Rood is aan zet" : "Blauw is aan zet";
             }
         }
 

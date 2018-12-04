@@ -38,7 +38,7 @@
             this.buttonNewGame = new System.Windows.Forms.Button();
             this.labelScoreRed = new System.Windows.Forms.Label();
             this.checkHelp = new System.Windows.Forms.CheckBox();
-            this.board = new reversi.Board();
+            this.board = new reversi.BoardControl();
             labelRedScoreHeader = new System.Windows.Forms.Label();
             tableLayout = new System.Windows.Forms.TableLayoutPanel();
             tableLayoutControls = new System.Windows.Forms.TableLayoutPanel();
@@ -193,8 +193,8 @@
             this.board.ShowHints = true;
             this.board.Size = new System.Drawing.Size(420, 420);
             this.board.TabIndex = 2;
-            this.board.SquareClicked += new reversi.Board.SquareClickedEventHandler(this.board_SquareClicked);
-            this.board.UpdateStatus += new reversi.Board.UpdateStatusEventHandler(this.board_UpdateStatus);
+            this.board.SquareClicked += new reversi.BoardControl.SquareClickedEventHandler(this.board_SquareClicked);
+            this.board.UpdateStatus += new reversi.BoardControl.UpdateStatusEventHandler(this.board_UpdateStatus);
             // 
             // MainWindow
             // 
@@ -215,7 +215,7 @@
 
         #endregion
 
-        private Board board;
+        private BoardControl board;
         private System.Windows.Forms.Label labelScoreRed;
         private System.Windows.Forms.Label labelStatus;
         private System.Windows.Forms.Button buttonNewGame;
