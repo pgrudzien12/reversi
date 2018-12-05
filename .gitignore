@@ -108,3 +108,4 @@ Backup*/
 UpgradeLog*.XML
 /.vs/reversi/v15/Server/sqlite3
 /.vs/reversi/DesignTimeBuild
+*.diagsession
