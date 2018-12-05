@@ -14,7 +14,7 @@ namespace reversi
         public const int HEIGHT = 8;
 
         /// <summary>The current pieces on the board</summary>
-        private Piece[,] pieces;
+        private Piece[] pieces;
 
         /// <summary>The current status of the game</summary>
         public GameStatus currStatus = new GameStatus();
@@ -22,7 +22,11 @@ namespace reversi
         {
             get
             {
-                return pieces[x, y];
+                return pieces[x * WIDTH + y];
+            }
+            private set
+            {
+                pieces[x * WIDTH + y] = value;
             }
         }
 
@@ -33,13 +37,10 @@ namespace reversi
             clone.currStatus.gameEnded = this.currStatus.gameEnded;
             clone.currStatus.lastPassed = this.currStatus.lastPassed;
 
-            clone.pieces = new Piece[WIDTH, HEIGHT];
-            for (int x = 0; x < WIDTH; ++x)
+            clone.pieces = new Piece[WIDTH * HEIGHT];
+            for (int x = 0; x < WIDTH * HEIGHT; ++x)
             {
-                for (int y = 0; y < HEIGHT; ++y)
-                {
-                    clone.pieces[x, y] = pieces[x, y];
-                }
+                clone.pieces[x] = pieces[x];
             }
             return clone;
         }
@@ -74,7 +75,7 @@ namespace reversi
             }
 
             // Check if `col` and `row` are in the boundaries of the board and if (`col`, `row`) is an empty square
-            if (col < 0 || row < 0 || col >= WIDTH || row >= HEIGHT || pieces[col, row] != Piece.None)
+            if (col < 0 || row < 0 || col >= WIDTH || row >= HEIGHT || this[col, row] != Piece.None)
             {
                 return false;
             }
@@ -97,12 +98,12 @@ namespace reversi
                     {
                         int currX = col + steps * dx;
                         int currY = row + steps * dy;
-                        if (currX < 0 || currX >= WIDTH || currY < 0 || currY >= HEIGHT || pieces[currX, currY] == Piece.None)
+                        if (currX < 0 || currX >= WIDTH || currY < 0 || currY >= HEIGHT || this[currX, currY] == Piece.None)
                         {
                             break;
                         }
 
-                        if (pieces[currX, currY] == color)
+                        if (this[currX, currY] == color)
                         {
                             if (steps > 1)
                             {
@@ -111,7 +112,7 @@ namespace reversi
 
                             for (int i = 1; i < steps; ++i)
                             {
-                                pieces[col + i * dx, row + i * dy] = color;
+                                this[col + i * dx, row + i * dy] = color;
                             }
 
                             break;
@@ -127,13 +128,13 @@ namespace reversi
             }
 
             // Now we only need to place the new piece
-            pieces[col, row] = color;
+            this[col, row] = color;
 
             // If the next player can't play, let him skip the turn
-            if (ValidMoves((currStatus.currTurn == Piece.Red ? Piece.Blue : Piece.Red)).Length == 0)
+            if (ValidMoves((currStatus.currTurn == Piece.Red ? Piece.Blue : Piece.Red), true).Length == 0)
             {
                 // Check if the game has ended
-                if (ValidMoves(currStatus.currTurn).Length == 0)
+                if (ValidMoves(currStatus.currTurn, true).Length == 0)
                 {
                     currStatus.gameEnded = true;
                 }
@@ -155,20 +156,17 @@ namespace reversi
         public void ClearBoard()
         {
             // Create an array of pieces where all pieces are set to Piece.None
-            pieces = new Piece[WIDTH, HEIGHT];
+            pieces = new Piece[WIDTH * HEIGHT];
             for (int x = 0; x < WIDTH; ++x)
             {
-                for (int y = 0; y < HEIGHT; ++y)
-                {
-                    pieces[x, y] = Piece.None;
-                }
+                pieces[x] = Piece.None;
             }
 
             // Place the initial board.pieces in the middle of the board
-            pieces[WIDTH / 2 - 1, HEIGHT / 2 - 1] = Piece.Blue;
-            pieces[WIDTH / 2, HEIGHT / 2 - 1] = Piece.Red;
-            pieces[WIDTH / 2 - 1, HEIGHT / 2] = Piece.Red;
-            pieces[WIDTH / 2, HEIGHT / 2] = Piece.Blue;
+            this[WIDTH / 2 - 1, HEIGHT / 2 - 1] = Piece.Blue;
+            this[WIDTH / 2, HEIGHT / 2 - 1] = Piece.Red;
+            this[WIDTH / 2 - 1, HEIGHT / 2] = Piece.Red;
+            this[WIDTH / 2, HEIGHT / 2] = Piece.Blue;
 
             // Initialize a new game status
             currStatus.currTurn = Piece.Red;
@@ -180,7 +178,7 @@ namespace reversi
         /// <summary>Returns all valid moves for a player</summary>
         /// <param name="color">The player whose moves we have to check</param>
         /// <returns>An array with all the valid moves for the player, empty if no moves possible</returns>
-        public MoveDescriptor[] ValidMoves(Piece color)
+        public MoveDescriptor[] ValidMoves(Piece color, bool stopOnFirst = false)
         {
             List<MoveDescriptor> Moves = new List<MoveDescriptor>();
             for (int col = 0; col < WIDTH; ++col)
@@ -194,7 +192,7 @@ namespace reversi
                     }
 
                     // Check if `col` and `row` are in the boundaries of the board and if (`col`, `row`) is an empty square
-                    if (pieces[col, row] != Piece.None)
+                    if (this[col, row] != Piece.None)
                     {
                         continue;
                     }
@@ -217,12 +215,12 @@ namespace reversi
                             {
                                 int currX = col + steps * dx;
                                 int currY = row + steps * dy;
-                                if (currX < 0 || currX >= WIDTH || currY < 0 || currY >= HEIGHT || pieces[currX, currY] == Piece.None)
+                                if (currX < 0 || currX >= WIDTH || currY < 0 || currY >= HEIGHT || this[currX, currY] == Piece.None)
                                 {
                                     break;
                                 }
 
-                                if (pieces[currX, currY] == color)
+                                if (this[currX, currY] == color)
                                 {
                                     piecesFlipped = piecesFlipped || steps > 1;
                                     break;
@@ -238,6 +236,8 @@ namespace reversi
                     if (piecesFlipped)
                     {
                         Moves.Add(new MoveDescriptor(col, row));
+                        if (stopOnFirst)
+                            return Moves.ToArray();
                     }
                     else
                     {
@@ -255,14 +255,11 @@ namespace reversi
         public int Score(Piece color)
         {
             int score = 0;
-            for (int col = 0; col < WIDTH; ++col)
+            for (int i = 0; i < WIDTH * HEIGHT; ++i)
             {
-                for (int row = 0; row < HEIGHT; ++row)
+                if (pieces[i] == color)
                 {
-                    if (pieces[col, row] == color)
-                    {
-                        ++score;
-                    }
+                    ++score;
                 }
             }
             return score;
@@ -277,20 +274,17 @@ namespace reversi
         {
             if (other == null)
                 return false;
-            for (int y = 0; y < HEIGHT; y++)
+            for (int i = 0; i < HEIGHT * WIDTH; i++)
             {
-                for (int x = 0; x < WIDTH; x++)
-                {
-                    if (this[x, y] != other[x, y])
-                        return false;
-                }
+                if (pieces[i] != other.pieces[i])
+                    return false;
             }
             return true;
         }
 
         public override int GetHashCode()
         {
-            return -530229870 + EqualityComparer<Piece[,]>.Default.GetHashCode(pieces);
+            return -530229870 + EqualityComparer<Piece[]>.Default.GetHashCode(pieces);
         }
 
         public static bool operator ==(Board board1, Board board2)
