@@ -47,6 +47,7 @@ namespace reversi
         {
             // Initialize the control
             InitializeComponent();
+            DoubleBuffered = true;
 
             // Redraw when the control is resized
             this.ResizeRedraw = true;

@@ -32,7 +32,6 @@
             // 
             // Board
             // 
-            this.DoubleBuffered = true;
             this.Name = "Board";
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Board_Paint);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Board_MouseDown);
