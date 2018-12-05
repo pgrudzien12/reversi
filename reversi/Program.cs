@@ -16,7 +16,7 @@ namespace reversi
         {
             Application.SetCompatibleTextRenderingDefault(false);
             var window = new MainWindow();
-            Game reversiGame = new Game(new GreedyPlayer(), new MinMaxPlayer(6));
+            Game reversiGame = new Game(window.PlayerContorller, new MinMaxPlayer(6));
             reversiGame.AddObserver(window);
             reversiGame.AddObserver(window.PlayerContorller);
             window.Game = reversiGame;
