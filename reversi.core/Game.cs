@@ -47,7 +47,7 @@ namespace reversi
             }
         }
 
-        private Task ResetGame()
+        public Task ResetGame()
         {
             Board.ClearBoard();
             return NotifyObserversOnClean();
@@ -57,7 +57,7 @@ namespace reversi
         {
             foreach (var o in _observers)
             {
-                await o.OnMove(md);
+                await o.OnMove(Board, md);
             }
         }
 
@@ -65,7 +65,7 @@ namespace reversi
         {
             foreach (var o in _observers)
             {
-                await o.OnMove(null);
+                await o.OnMove(Board, null);
             }
         }
     }

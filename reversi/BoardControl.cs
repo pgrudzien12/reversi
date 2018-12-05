@@ -309,8 +309,9 @@ namespace reversi
             return tcs1.Task;
         }
 
-        public Task OnMove(MoveDescriptor md)
+        public Task OnMove(Board b, MoveDescriptor md)
         {
+            board = b;
             RefreshBoard();
             return Task.FromResult(true);
         }

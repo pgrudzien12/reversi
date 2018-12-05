@@ -40,7 +40,7 @@ namespace reversi
             return bestScore;
         }
 
-        public Task OnMove(MoveDescriptor md)
+        public Task OnMove(Board b, MoveDescriptor md)
         {
             return Task.CompletedTask;
         }

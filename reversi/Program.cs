@@ -16,10 +16,11 @@ namespace reversi
         {
             Application.SetCompatibleTextRenderingDefault(false);
             var window = new MainWindow();
-            Game reversiGame = new Game(window.PlayerContorller, new MinMaxPlayer(8));
+            Game reversiGame = new Game(new GreedyPlayer(), new MinMaxPlayer(6));
             reversiGame.AddObserver(window);
+            reversiGame.AddObserver(window.PlayerContorller);
             window.Game = reversiGame;
-            Task t = reversiGame.PlayAsync();
+            Task t = Task.Run(reversiGame.PlayAsync);
             Application.EnableVisualStyles();
             Application.Run(window);
         }

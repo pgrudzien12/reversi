@@ -14,7 +14,7 @@ namespace reversi
             return Task.FromResult(board.ValidMoves(board.currStatus.currTurn)[0]);
         }
 
-        public Task OnMove(MoveDescriptor md)
+        public Task OnMove(Board b, MoveDescriptor md)
         {
             return Task.CompletedTask;
         }

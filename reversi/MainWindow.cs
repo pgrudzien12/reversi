@@ -17,9 +17,10 @@ namespace reversi
 
         public Game Game { get; set; }
 
-        public Task OnMove(MoveDescriptor md)
+        public Task OnMove(Board b, MoveDescriptor md)
         {
-            board_UpdateStatus();
+            Action d = () => board_UpdateStatus();
+            Invoke(d);
             return Task.FromResult(true);
         }
 
@@ -62,9 +63,10 @@ namespace reversi
             }
         }
 
-        private void buttonNewGame_Click(object sender, EventArgs e)
+        private async void buttonNewGame_Click(object sender, EventArgs e)
         {
-            Game.Board.ClearBoard();
+            await Game.ResetGame();
+            await Game.PlayAsync();
         }
 
         private void checkHelp_CheckedChanged(object sender, EventArgs e)

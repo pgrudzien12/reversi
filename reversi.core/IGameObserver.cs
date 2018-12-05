@@ -4,6 +4,6 @@ namespace reversi
 {
     public interface IGameObserver
     {
-        Task OnMove(MoveDescriptor md);
+        Task OnMove(Board board, MoveDescriptor md);
     }
 }

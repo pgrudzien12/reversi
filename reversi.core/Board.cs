@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace reversi
 {
-    public class Board
+    public class Board : IEquatable<Board>
     {
 
         /// <summary>The width of the board (must be at least 3)</summary>
@@ -266,8 +267,69 @@ namespace reversi
             }
             return score;
         }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as Board);
+        }
+
+        public bool Equals(Board other)
+        {
+            if (other == null)
+                return false;
+            for (int y = 0; y < HEIGHT; y++)
+            {
+                for (int x = 0; x < WIDTH; x++)
+                {
+                    if (this[x, y] != other[x, y])
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return -530229870 + EqualityComparer<Piece[,]>.Default.GetHashCode(pieces);
+        }
+
+        public static bool operator ==(Board board1, Board board2)
+        {
+            return EqualityComparer<Board>.Default.Equals(board1, board2);
+        }
+
+        public static bool operator !=(Board board1, Board board2)
+        {
+            return !(board1 == board2);
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int y = 0; y < HEIGHT; y++)
+            {
+                for (int x = 0; x < WIDTH; x++)
+                {
+                    char c = '_';
+                    switch (this[x, y])
+                    {
+                        case Piece.Blue:
+                            c = '0';
+                            break;
+                        case Piece.Red:
+                            c = 'x';
+                            break;
+                        default:
+                            break;
+                    }
+                    sb.Append(c);
+                }
+                sb.AppendLine();
+            }
+            return sb.ToString();
+        }
     }
-    public class MoveDescriptor
+    public class MoveDescriptor : IEquatable<MoveDescriptor>
     {
         public MoveDescriptor(int col, int row)
         {
@@ -277,5 +339,27 @@ namespace reversi
 
         public int X { get; }
         public int Y { get; }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as MoveDescriptor);
+        }
+
+        public bool Equals(MoveDescriptor other)
+        {
+            return other != null &&
+                   X == other.X &&
+                   Y == other.Y;
+        }
+
+        public static bool operator ==(MoveDescriptor descriptor1, MoveDescriptor descriptor2)
+        {
+            return EqualityComparer<MoveDescriptor>.Default.Equals(descriptor1, descriptor2);
+        }
+
+        public static bool operator !=(MoveDescriptor descriptor1, MoveDescriptor descriptor2)
+        {
+            return !(descriptor1 == descriptor2);
+        }
     }
 }
