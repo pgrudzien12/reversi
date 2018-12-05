@@ -14,7 +14,7 @@ namespace reversi
         {
             var me = board.currStatus.currTurn;
             if (node == null)
-                node = new BoardTreeNode(board, Piece.None, me, null, maxDepth);
+                node = new BoardTreeNode(board, Piece.None, me, default(MoveDescriptor), maxDepth);
             return Task.FromResult(node.GetBestMove(me));
         }
 

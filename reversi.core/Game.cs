@@ -65,7 +65,7 @@ namespace reversi
         {
             foreach (var o in _observers)
             {
-                await o.OnMove(Board, null);
+                await o.OnMove(Board, default(MoveDescriptor));
             }
         }
     }

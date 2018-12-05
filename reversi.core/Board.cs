@@ -324,7 +324,7 @@ namespace reversi
             return sb.ToString();
         }
     }
-    public class MoveDescriptor : IEquatable<MoveDescriptor>
+    public struct MoveDescriptor
     {
         public MoveDescriptor(int col, int row)
         {
@@ -337,19 +337,27 @@ namespace reversi
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as MoveDescriptor);
+            if (!(obj is MoveDescriptor))
+            {
+                return false;
+            }
+
+            var descriptor = (MoveDescriptor)obj;
+            return X == descriptor.X &&
+                   Y == descriptor.Y;
         }
 
-        public bool Equals(MoveDescriptor other)
+        public override int GetHashCode()
         {
-            return other != null &&
-                   X == other.X &&
-                   Y == other.Y;
+            var hashCode = 1861411795;
+            hashCode = hashCode * -1521134295 + X.GetHashCode();
+            hashCode = hashCode * -1521134295 + Y.GetHashCode();
+            return hashCode;
         }
 
         public static bool operator ==(MoveDescriptor descriptor1, MoveDescriptor descriptor2)
         {
-            return EqualityComparer<MoveDescriptor>.Default.Equals(descriptor1, descriptor2);
+            return descriptor1.Equals(descriptor2);
         }
 
         public static bool operator !=(MoveDescriptor descriptor1, MoveDescriptor descriptor2)
