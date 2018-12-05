@@ -38,7 +38,7 @@ namespace reversi
             clone.currStatus.lastPassed = this.currStatus.lastPassed;
 
             clone.pieces = new Piece[WIDTH * HEIGHT];
-            for (int x = 0; x < WIDTH * HEIGHT; ++x)
+            for (int x = 0; x < clone.pieces.Length; ++x)
             {
                 clone.pieces[x] = pieces[x];
             }
@@ -157,7 +157,7 @@ namespace reversi
         {
             // Create an array of pieces where all pieces are set to Piece.None
             pieces = new Piece[WIDTH * HEIGHT];
-            for (int x = 0; x < WIDTH; ++x)
+            for (int x = 0; x < WIDTH * HEIGHT; ++x)
             {
                 pieces[x] = Piece.None;
             }
@@ -180,17 +180,18 @@ namespace reversi
         /// <returns>An array with all the valid moves for the player, empty if no moves possible</returns>
         public MoveDescriptor[] ValidMoves(Piece color, bool stopOnFirst = false)
         {
+
+            // Making no move at all is always invalid
+            if (color == Piece.None)
+            {
+                return new MoveDescriptor[0];
+            }
+
             List<MoveDescriptor> Moves = new List<MoveDescriptor>();
             for (int col = 0; col < WIDTH; ++col)
             {
                 for (int row = 0; row < HEIGHT; ++row)
                 {
-                    // Making no move at all is always invalid
-                    if (color == Piece.None)
-                    {
-                        continue;
-                    }
-
                     // Check if `col` and `row` are in the boundaries of the board and if (`col`, `row`) is an empty square
                     if (this[col, row] != Piece.None)
                     {
