@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace reversi
 {
-    public partial class MainWindow : Form
+    public partial class MainWindow : Form, IGameObserver
     {
         public MainWindow()
         {
@@ -16,6 +16,12 @@ namespace reversi
         public IPlayerController PlayerContorller { get; set; }
 
         public Game Game { get; set; }
+
+        public Task OnMove(MoveDescriptor md)
+        {
+            board_UpdateStatus();
+            return Task.FromResult(true);
+        }
 
         private void board_UpdateStatus()
         {

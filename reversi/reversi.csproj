@@ -50,6 +50,7 @@
     <Compile Include="Board.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="GameStatus.cs" />
+    <Compile Include="IGameObserver.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -66,6 +67,7 @@
     <Compile Include="BoardControl.Designer.cs">
       <DependentUpon>BoardControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="RandomMovesPlayer.cs" />
     <EmbeddedResource Include="BoardControl.resx">
       <DependentUpon>BoardControl.cs</DependentUpon>
     </EmbeddedResource>

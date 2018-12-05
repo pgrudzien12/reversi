@@ -16,7 +16,8 @@ namespace reversi
         {
             Application.SetCompatibleTextRenderingDefault(false);
             var window = new MainWindow();
-            Game reversiGame = new Game(window.PlayerContorller, window.PlayerContorller);
+            Game reversiGame = new Game(window.PlayerContorller, new RandomMovesPlayer());
+            reversiGame.AddObserver(window);
             window.Game = reversiGame;
             Task t = reversiGame.PlayAsync();
             Application.EnableVisualStyles();

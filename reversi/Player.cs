@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 
 namespace reversi
 {
-    public interface IPlayerController
+    public interface IPlayerController : IGameObserver
     {
         Task<MoveDescriptor> MakeMove(Board board, CancellationToken cancellationToken);
-        Task OnMove(MoveDescriptor md);
+
     }
 }
