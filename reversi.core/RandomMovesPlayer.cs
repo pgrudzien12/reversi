@@ -16,7 +16,7 @@ namespace reversi
 
         public Task OnMove(MoveDescriptor md)
         {
-            return Task.FromResult(true);
+            return Task.CompletedTask;
         }
     }
 }

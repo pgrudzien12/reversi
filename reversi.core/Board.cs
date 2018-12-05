@@ -25,6 +25,24 @@ namespace reversi
             }
         }
 
+        internal Board Clone()
+        {
+            var clone = new Board();
+            clone.currStatus.currTurn = this.currStatus.currTurn;
+            clone.currStatus.gameEnded = this.currStatus.gameEnded;
+            clone.currStatus.lastPassed = this.currStatus.lastPassed;
+
+            clone.pieces = new Piece[WIDTH, HEIGHT];
+            for (int x = 0; x < WIDTH; ++x)
+            {
+                for (int y = 0; y < HEIGHT; ++y)
+                {
+                    clone.pieces[x, y] = pieces[x, y];
+                }
+            }
+            return clone;
+        }
+
 
         /// <summary>Makes the given move for the color whose turn it currently is</summary>
         /// <param name="col">The column where the piece should be placed</param>

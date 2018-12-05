@@ -35,7 +35,7 @@ namespace reversi
             await ResetGame();
             while (true)
             {
-                var md = await CurrentPlayer.MakeMove(Board, cancellationToken);
+                var md = await CurrentPlayer.MakeMove(Board.Clone(), cancellationToken);
                 if (Board.MakeMove(md))
                 {
                     await NotifyObserversOnMove(md);
