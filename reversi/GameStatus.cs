@@ -9,8 +9,5 @@
         public bool lastPassed;
         /// <summary>Whether or not the game has ended</summary>
         public bool gameEnded;
-
-        /// <summary>Whether or not to show hints</summary>
-        public bool showHints;
     }
 }

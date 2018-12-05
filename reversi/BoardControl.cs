@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace reversi
 {
-    public partial class BoardControl : Control
+    public partial class BoardControl : Control, IPlayerController
     {
         private int WIDTH = Board.WIDTH;
         private int HEIGHT = Board.HEIGHT;
 
-        public Board board = new Board();
+        public Board board  = new Board();
+        private TaskCompletionSource<MoveDescriptor> tcs1;
 
         internal void MakeMove(int x, int y)
         {
@@ -24,6 +27,7 @@ namespace reversi
 
         /// <summary>The square where the left mouse button was pressed, or (-1, -1) if the left mouse button currently isn't down</summary>
         private Point mouseDownSquare = new Point(-1, -1);
+        private bool _showHints;
 
         /// <summary>The form that a SquareClicked event handler should have</summary>
         /// <param name="square">The coordinates (in columns and rows) of the square that was clicked</param>
@@ -51,7 +55,7 @@ namespace reversi
             ClearBoard();
 
             // Initially show the hints
-            board.currStatus.showHints = true;
+            _showHints = true;
         }
 
         /// <summary>Clears the board, places the initial pieces and resets the game status</summary>
@@ -84,10 +88,10 @@ namespace reversi
         /// <summary>Whether or not to show hints</summary>
         public bool ShowHints
         {
-            get { return board.currStatus.showHints; }
+            get { return _showHints; }
             set
             {
-                board.currStatus.showHints = value;
+                _showHints = value;
                 RefreshBoard();
             }
         }
@@ -234,7 +238,7 @@ namespace reversi
             }
 
             // Draw the hints (all possible moves)
-            if (board.currStatus.showHints)
+            if (_showHints)
             {
                 MoveDescriptor[] validMoves = board.ValidMoves(board.currStatus.currTurn);
                 foreach (MoveDescriptor validMove in validMoves)
@@ -287,13 +291,23 @@ namespace reversi
 
         private void Board_MouseUp(object sender, MouseEventArgs e)
         {
-            if (SquareClicked != null && mouseDownSquare.Equals(highlightSquare) && mouseDownSquare.X >= 0 && mouseDownSquare.Y >= 0 && mouseDownSquare.X < WIDTH && mouseDownSquare.Y < HEIGHT)
+            if (tcs1 != null && mouseDownSquare.Equals(highlightSquare) && mouseDownSquare.X >= 0 && mouseDownSquare.Y >= 0 && mouseDownSquare.X < WIDTH && mouseDownSquare.Y < HEIGHT)
             {
-                SquareClicked(mouseDownSquare);
+                var tcs = tcs1;
+                tcs1 = null;
+                tcs.SetResult(new MoveDescriptor(mouseDownSquare.X, mouseDownSquare.Y));
             }
 
             mouseDownSquare = new Point(-1, -1);
-            Invalidate();
+            RefreshBoard();
+
+        }
+
+        public Task<MoveDescriptor> MakeMove(Board board, CancellationToken token)
+        {
+            this.board = board;
+            tcs1 = new TaskCompletionSource<MoveDescriptor>();
+            return tcs1.Task;
         }
     }
 }

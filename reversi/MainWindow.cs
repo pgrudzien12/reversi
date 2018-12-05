@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace reversi
@@ -9,25 +10,25 @@ namespace reversi
         public MainWindow()
         {
             InitializeComponent();
+            PlayerContorller = humanPlayer;
         }
 
-        private void board_SquareClicked(Point square)
-        {
-            board.MakeMove(square.X, square.Y);
-        }
+        public IPlayerController PlayerContorller { get; set; }
+
+        public Game Game { get; set; }
 
         private void board_UpdateStatus()
         {
             // Get the scores
-            int redScore = board.board.Score(Piece.Red);
-            int blueScore = board.board.Score(Piece.Blue);
+            int redScore = Game.Board.Score(Piece.Red);
+            int blueScore = Game.Board.Score(Piece.Blue);
 
             // Update the scores
             labelScoreBlue.Text = blueScore.ToString();
             labelScoreRed.Text = redScore.ToString();
 
             // Update the status label
-            if (board.GameEnded)
+            if (humanPlayer.GameEnded)
             {
                 if (redScore > blueScore)
                 {
@@ -44,26 +45,26 @@ namespace reversi
             }
             else
             {
-                if (board.LastPassed)
+                if (humanPlayer.LastPassed)
                 {
-                    labelStatus.Text = board.CurrentTurn == Piece.Red ? "Blue had to pass" : "Red had to pass";
+                    labelStatus.Text = humanPlayer.CurrentTurn == Piece.Red ? "Blue had to pass" : "Red had to pass";
                 }
                 else
                 {
-                    labelStatus.Text = board.CurrentTurn == Piece.Red ? "Red is on move" : "Blue is on move";
+                    labelStatus.Text = humanPlayer.CurrentTurn == Piece.Red ? "Red is on move" : "Blue is on move";
                 }
             }
         }
 
         private void buttonNewGame_Click(object sender, EventArgs e)
         {
-            board.ClearBoard();
+            Game.Board.ClearBoard();
         }
 
         private void checkHelp_CheckedChanged(object sender, EventArgs e)
         {
-            board.ShowHints = checkHelp.Checked;
-            board.RefreshBoard();
+            humanPlayer.ShowHints = checkHelp.Checked;
+            humanPlayer.RefreshBoard();
         }
     }
 }

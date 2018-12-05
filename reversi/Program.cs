@@ -14,9 +14,13 @@ namespace reversi
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainWindow());
+            var window = new MainWindow();
+            Game reversiGame = new Game(window.PlayerContorller, window.PlayerContorller);
+            window.Game = reversiGame;
+            Task t = reversiGame.PlayAsync();
+            Application.EnableVisualStyles();
+            Application.Run(window);
         }
     }
 }

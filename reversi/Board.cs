@@ -5,6 +5,7 @@ namespace reversi
 {
     public class Board
     {
+
         /// <summary>The width of the board (must be at least 3)</summary>
         public const int WIDTH = 8;
 
@@ -34,6 +35,11 @@ namespace reversi
             return MakeMove(col, row, currStatus.currTurn);
         }
 
+
+        public bool MakeMove(MoveDescriptor md)
+        {
+            return MakeMove(md.X, md.Y);
+        }
 
         /// <summary>Makes the given move for the given color</summary>
         /// <param name="col">The column where the piece should be placed</param>
