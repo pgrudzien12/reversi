@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,6 +34,7 @@ namespace reversi
         {
             cancellationToken = new CancellationToken();
             await ResetGame();
+            Stopwatch sw = Stopwatch.StartNew();
             while (true)
             {
                 var md = await CurrentPlayer.MakeMove(Board.Clone(), cancellationToken);
@@ -45,6 +47,8 @@ namespace reversi
                     break;
                 }
             }
+            sw.Stop();
+            Trace.WriteLine($"Game ends after {sw.Elapsed.TotalSeconds}[s]");
         }
 
         public Task ResetGame()
