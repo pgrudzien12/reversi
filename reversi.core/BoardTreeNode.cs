@@ -32,7 +32,7 @@ namespace reversi
             Debug.WriteLineIf(subDepth > 0, "Counting subDepth = " + subDepth);
             var list = new List<BoardTreeNode>();
             var validMoves = Board.ValidMoves(WhoWillMove);
-                
+
             for (int i = 0; i < validMoves.Length; i++)
             {
                 Board newBoard = Board.Clone();
@@ -90,15 +90,16 @@ namespace reversi
                 item.CalculateScore(me, depth + 1);
             }
 
-            IEnumerable<BoardTreeNode> ordered = children.OrderBy(c => c.Score); // max
-            if (WhoWillMove != me)
-                ordered = ordered.Reverse(); // min
-            if (!ordered.Any())
+            if (!children.Any())
             {
                 Score = Board.Score(me);
                 return;
             }
-            Score = ordered.First().Score;
+
+            if (WhoWillMove == me)
+                Score = children.Min(c => c.Score);
+            else
+                Score = children.Max(c => c.Score);
         }
     }
 }
