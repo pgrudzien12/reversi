@@ -26,7 +26,11 @@ namespace reversi
             while (true)
             {
                 var md = await CurrentPlayer.MakeMove(Board, cancellationToken);
-                Board.MakeMove(md);
+                if (Board.MakeMove(md))
+                {
+                    await _playerBlue.OnMove(md);
+                    await _playerBlue.OnMove(md);
+                }
                 if (Board.currStatus.gameEnded)
                 {
                     break;

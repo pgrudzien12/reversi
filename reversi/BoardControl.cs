@@ -299,8 +299,6 @@ namespace reversi
             }
 
             mouseDownSquare = new Point(-1, -1);
-            RefreshBoard();
-
         }
 
         public Task<MoveDescriptor> MakeMove(Board board, CancellationToken token)
@@ -308,6 +306,12 @@ namespace reversi
             this.board = board;
             tcs1 = new TaskCompletionSource<MoveDescriptor>();
             return tcs1.Task;
+        }
+
+        public Task OnMove(MoveDescriptor md)
+        {
+            RefreshBoard();
+            return Task.FromResult(true);
         }
     }
 }

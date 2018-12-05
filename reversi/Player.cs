@@ -7,5 +7,6 @@ namespace reversi
     public interface IPlayerController
     {
         Task<MoveDescriptor> MakeMove(Board board, CancellationToken cancellationToken);
+        Task OnMove(MoveDescriptor md);
     }
 }
