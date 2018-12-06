@@ -6,7 +6,6 @@ namespace reversi
 {
     public class Board : IEquatable<Board>
     {
-
         /// <summary>The width of the board (don't change)</summary>
         private const byte WIDTH = 8;
 
@@ -15,9 +14,8 @@ namespace reversi
 
         /// <summary>The current pieces on the board</summary>
         private Vector128 pieces;
-
-        int redPoints;
-        int bluePoints;
+        private int redPoints;
+        private int bluePoints;
 
         public Piece this[int x, int y]
         {
@@ -44,15 +42,20 @@ namespace reversi
                 if (pieces[pos] == 1)
                 {
                     if (pieces[pos8] == 0)
+                    {
                         redPoints--;
+                    }
                     else
+                    {
                         bluePoints--;
+                    }
                 }
                 if (value == Piece.None)
                 {
                     pieces[pos] = 0;
                     pieces[pos8] = 0;
-                }else if (value == Piece.Red)
+                }
+                else if (value == Piece.Red)
                 {
                     pieces[pos] = 1;
                     pieces[pos8] = 0;
@@ -96,15 +99,9 @@ namespace reversi
         /// <param name="col">The column where the piece should be placed</param>
         /// <param name="row">The row where the piece should be placed</param>
         /// <returns>Whether the move succeeded or not</returns>
-        public bool MakeMove(int col, int row)
-        {
-            return MakeMove(col, row, CurrTurn);
-        }
-
-
         public bool MakeMove(MoveDescriptor md)
         {
-            return MakeMove(md.X, md.Y);
+            return MakeMove(md.X, md.Y, CurrTurn);
         }
 
         /// <summary>Makes the given move for the given color</summary>
@@ -119,7 +116,7 @@ namespace reversi
             {
                 return false;
             }
-            
+
             // Check if `col` and `row` are in the boundaries of the board and if (`col`, `row`) is an empty square
             if (col < 0 || row < 0 || col >= WIDTH || row >= HEIGHT || this[(byte)col, (byte)row] != Piece.None)
             {
@@ -158,7 +155,7 @@ namespace reversi
 
                             for (int i = 1; i < steps; ++i)
                             {
-                                this[(byte)(col + i * dx),(byte)(row + i * dy)] = color;
+                                this[(byte)(col + i * dx), (byte)(row + i * dy)] = color;
                             }
 
                             break;
@@ -286,7 +283,9 @@ namespace reversi
                     {
                         Moves.Add(new MoveDescriptor(col, row));
                         if (stopOnFirst)
+                        {
                             return Moves.ToArray();
+                        }
                     }
                     else
                     {
@@ -303,21 +302,21 @@ namespace reversi
         /// <returns>The amount of squares with the given color</returns>
         public int Score(Piece color)
         {
-            if (color == Piece.Red)
-                return redPoints;
-            else
-                return bluePoints;
+            return color == Piece.Red ? redPoints : bluePoints;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object other)
         {
-            return Equals(obj as Board);
+            return this.Equals(other as Board);
         }
 
         public bool Equals(Board other)
         {
             if (other == null)
+            {
                 return false;
+            }
+
             return pieces == other.pieces;
         }
 

@@ -11,12 +11,12 @@ namespace reversi
         private int WIDTH = 8;
         private int HEIGHT = 8;
 
-        public Board board  = new Board();
+        public Board board = new Board();
         private TaskCompletionSource<MoveDescriptor> tcs1;
 
         internal void MakeMove(int x, int y)
         {
-            if (board.MakeMove(x, y))
+            if (board.MakeMove(new MoveDescriptor(x, y)))
             {
                 RefreshBoard();
             }
