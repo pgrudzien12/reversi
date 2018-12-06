@@ -268,7 +268,7 @@ namespace reversi
                         // Determine the amount of steps that we should go in the current direction until we encounter a piece of our own color
                         // Then, if we find a piece of our own color, flip over all pieces in between
                         // If we do encounter such a piece, or if we encounter an empty square first, we won't flip over any pieces
-                        for (int steps = 1; steps <= 8; ++steps)
+                        for (int steps = 1; steps <= 7; ++steps)
                         {
                             currPos = (byte)(currPos + bishopMoves[i]);
                             if (((currPos & 0x88) > 0) || pieces[currPos] == 0)
