@@ -7,14 +7,15 @@ namespace reversi
     public class Board : IEquatable<Board>
     {
 
-        /// <summary>The width of the board (must be at least 3)</summary>
+
+        /// <summary>The width of the board (don't change)</summary>
         public const int WIDTH = 8;
 
-        /// <summary>The height of the board (must be at least 3)</summary>
+        /// <summary>The height of the board (dont' change)</summary>
         public const int HEIGHT = 8;
 
         /// <summary>The current pieces on the board</summary>
-        private Piece[] pieces;
+        private Vector128 pieces;
 
         /// <summary>The current status of the game</summary>
         public GameStatus currStatus = new GameStatus();
@@ -22,11 +23,27 @@ namespace reversi
         {
             get
             {
-                return pieces[x * WIDTH + y];
+                var pos = (y << 4) + x;
+                return (Piece)(pieces[pos] + pieces[pos + 8]);
             }
             private set
             {
-                pieces[x * WIDTH + y] = value;
+                var pos = (y << 4) + x;
+
+                if (value == Piece.None)
+                {
+                    pieces[pos] = 0;
+                    pieces[pos + 8] = 0;
+                }else if (value == Piece.Red)
+                {
+                    pieces[pos] = 1;
+                    pieces[pos + 8] = 0;
+                }
+                else if (value == Piece.Blue)
+                {
+                    pieces[pos] = 1;
+                    pieces[pos + 8] = 1;
+                }
             }
         }
 
@@ -37,12 +54,14 @@ namespace reversi
             clone.currStatus.gameEnded = this.currStatus.gameEnded;
             clone.currStatus.lastPassed = this.currStatus.lastPassed;
 
-            clone.pieces = new Piece[WIDTH * HEIGHT];
-            for (int x = 0; x < clone.pieces.Length; ++x)
-            {
-                clone.pieces[x] = pieces[x];
-            }
+            clone.pieces = pieces;
             return clone;
+        }
+
+        private static Vector128 NewBoard(bool setToZero)
+        {
+            var b = new Vector128();
+            return b;
         }
 
 
@@ -74,6 +93,9 @@ namespace reversi
                 return false;
             }
 
+            int pos = (row >> 4) + col;
+
+
             // Check if `col` and `row` are in the boundaries of the board and if (`col`, `row`) is an empty square
             if (col < 0 || row < 0 || col >= WIDTH || row >= HEIGHT || this[col, row] != Piece.None)
             {
@@ -94,7 +116,7 @@ namespace reversi
                     // Determine the amount of steps that we should go in the current direction until we encounter a piece of our own color
                     // Then, if we find a piece of our own color, flip over all pieces in between
                     // If we do encounter such a piece, or if we encounter an empty square first, we won't flip over any pieces
-                    for (int steps = 1; steps <= Math.Max(WIDTH, HEIGHT); ++steps)
+                    for (int steps = 1; steps <= 8; ++steps)
                     {
                         int currX = col + steps * dx;
                         int currY = row + steps * dy;
@@ -156,12 +178,8 @@ namespace reversi
         public void ClearBoard()
         {
             // Create an array of pieces where all pieces are set to Piece.None
-            pieces = new Piece[WIDTH * HEIGHT];
-            for (int x = 0; x < WIDTH * HEIGHT; ++x)
-            {
-                pieces[x] = Piece.None;
-            }
-
+            pieces = NewBoard(true);
+            
             // Place the initial board.pieces in the middle of the board
             this[WIDTH / 2 - 1, HEIGHT / 2 - 1] = Piece.Blue;
             this[WIDTH / 2, HEIGHT / 2 - 1] = Piece.Red;
@@ -212,7 +230,7 @@ namespace reversi
                             // Determine the amount of steps that we should go in the current direction until we encounter a piece of our own color
                             // Then, if we find a piece of our own color, flip over all pieces in between
                             // If we do encounter such a piece, or if we encounter an empty square first, we won't flip over any pieces
-                            for (int steps = 1; steps <= Math.Max(WIDTH, HEIGHT); ++steps)
+                            for (int steps = 1; steps <= 8; ++steps)
                             {
                                 int currX = col + steps * dx;
                                 int currY = row + steps * dy;
@@ -256,13 +274,12 @@ namespace reversi
         public int Score(Piece color)
         {
             int score = 0;
-            for (int i = 0; i < WIDTH * HEIGHT; ++i)
-            {
-                if (pieces[i] == color)
-                {
-                    ++score;
-                }
-            }
+            for (int x = 0; x < 8; ++x)
+                for (int y = 0; y < 8; ++y)
+                    if (this[x,y] == color)
+                    {
+                        ++score;
+                    }
             return score;
         }
 
@@ -275,17 +292,12 @@ namespace reversi
         {
             if (other == null)
                 return false;
-            for (int i = 0; i < HEIGHT * WIDTH; i++)
-            {
-                if (pieces[i] != other.pieces[i])
-                    return false;
-            }
-            return true;
+            return pieces == other.pieces;
         }
 
         public override int GetHashCode()
         {
-            return -530229870 + EqualityComparer<Piece[]>.Default.GetHashCode(pieces);
+            return -530229870 + EqualityComparer<Vector128>.Default.GetHashCode(pieces);
         }
 
         public static bool operator ==(Board board1, Board board2)
