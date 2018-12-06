@@ -250,7 +250,7 @@ namespace reversi
                 return new MoveDescriptor[0];
             }
 
-            List<MoveDescriptor> Moves = new List<MoveDescriptor>();
+            List<MoveDescriptor> moves = new List<MoveDescriptor>();
             for (byte col = 0; col < WIDTH; ++col)
             {
                 for (byte row = 0; row < HEIGHT; ++row)
@@ -291,10 +291,10 @@ namespace reversi
                     // In that case we simply return false
                     if (piecesFlipped)
                     {
-                        Moves.Add(new MoveDescriptor(col, row));
+                        moves.Add(new MoveDescriptor(pos));
                         if (stopOnFirst)
                         {
-                            return Moves.ToArray();
+                            return moves.ToArray();
                         }
                     }
                     else
@@ -304,7 +304,7 @@ namespace reversi
                 }
             }
 
-            return Moves.ToArray();
+            return moves.ToArray();
         }
 
         /// <summary>Gives the score of the given color (i.e. the amount of squares with that color)</summary>
@@ -373,6 +373,11 @@ namespace reversi
     }
     public struct MoveDescriptor
     {
+        public MoveDescriptor(byte pos)
+        {
+            Position = pos;
+        }
+
         public MoveDescriptor(int col, int row)
         {
             Position = (byte)((row << 4) + col);
@@ -395,9 +400,7 @@ namespace reversi
 
         public override int GetHashCode()
         {
-            var hashCode = 1861411795;
-            hashCode = hashCode * -1521134295 + Position.GetHashCode();
-            return hashCode;
+            return Position.GetHashCode();
         }
 
         public static bool operator ==(MoveDescriptor descriptor1, MoveDescriptor descriptor2)
