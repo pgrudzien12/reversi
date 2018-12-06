@@ -231,6 +231,8 @@ namespace reversi
         public Piece CurrTurn { get; set; }
         public bool LastPassed { get; set; }
         public bool GameEnded { get; set; }
+        private static MoveDescriptor[] ZeroDescriptoArray = new MoveDescriptor[0];
+        private static MoveDescriptor[] NonZeroDescriptoArray = new MoveDescriptor[1];
 
         /// <summary>Returns all valid moves for a player</summary>
         /// <param name="color">The player whose moves we have to check</param>
@@ -240,7 +242,7 @@ namespace reversi
             // Making no move at all is always invalid
             if (color == Piece.None)
             {
-                return new MoveDescriptor[0];
+                return ZeroDescriptoArray;
             }
 
             int colorNo = color == Piece.Red ? 0 : 1;
@@ -289,7 +291,7 @@ namespace reversi
                     {
                         if (stopOnFirst)
                         {
-                            return new MoveDescriptor[1];
+                            return NonZeroDescriptoArray;
                         }
                         moves.Add(new MoveDescriptor(pos));
                     }
@@ -301,7 +303,7 @@ namespace reversi
             }
             if (stopOnFirst)
             {
-                return new MoveDescriptor[0];
+                return ZeroDescriptoArray;
             }
             return moves.ToArray();
         }
