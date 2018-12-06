@@ -83,12 +83,6 @@ namespace reversi
             }
         }
 
-        public bool IsNone(int x, int y)
-        {
-            var pos = (byte)((y << 4) + x);
-            return pieces[pos] == 0;
-        }
-
         internal Board Clone()
         {
             var clone = new Board();
@@ -243,14 +237,16 @@ namespace reversi
         /// <returns>An array with all the valid moves for the player, empty if no moves possible</returns>
         public MoveDescriptor[] ValidMoves(Piece color, bool stopOnFirst = false)
         {
-            int colorNo = color == Piece.Red ? 0 : 1;
             // Making no move at all is always invalid
             if (color == Piece.None)
             {
                 return new MoveDescriptor[0];
             }
 
-            List<MoveDescriptor> moves = new List<MoveDescriptor>();
+            int colorNo = color == Piece.Red ? 0 : 1;
+            List<MoveDescriptor> moves = null;
+            if (!stopOnFirst)
+                moves = new List<MoveDescriptor>();
             for (byte col = 0; col < WIDTH; ++col)
             {
                 for (byte row = 0; row < HEIGHT; ++row)
@@ -291,11 +287,11 @@ namespace reversi
                     // In that case we simply return false
                     if (piecesFlipped)
                     {
-                        moves.Add(new MoveDescriptor(pos));
                         if (stopOnFirst)
                         {
-                            return moves.ToArray();
+                            return new MoveDescriptor[1];
                         }
+                        moves.Add(new MoveDescriptor(pos));
                     }
                     else
                     {
@@ -303,7 +299,10 @@ namespace reversi
                     }
                 }
             }
-
+            if (stopOnFirst)
+            {
+                return new MoveDescriptor[0];
+            }
             return moves.ToArray();
         }
 
