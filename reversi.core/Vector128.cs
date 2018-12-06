@@ -20,7 +20,7 @@ namespace reversi
             }
         }
 
-        public byte this[int pos]
+        public byte this[byte pos]
         {
             get
             {
