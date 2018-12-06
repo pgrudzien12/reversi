@@ -19,6 +19,8 @@ namespace reversi
 
         /// <summary>The current status of the game</summary>
         public GameStatus currStatus = new GameStatus();
+        int redPoints = 0;
+        int bluePoints = 0;
         public Piece this[int x, int y]
         {
             get
@@ -29,7 +31,13 @@ namespace reversi
             private set
             {
                 var pos = (y << 4) + x;
-
+                if (pieces[pos] == 1)
+                {
+                    if (pieces[pos + 8] == 0)
+                        redPoints--;
+                    else
+                        bluePoints--;
+                }
                 if (value == Piece.None)
                 {
                     pieces[pos] = 0;
@@ -38,11 +46,13 @@ namespace reversi
                 {
                     pieces[pos] = 1;
                     pieces[pos + 8] = 0;
+                    redPoints++;
                 }
                 else if (value == Piece.Blue)
                 {
                     pieces[pos] = 1;
                     pieces[pos + 8] = 1;
+                    bluePoints++;
                 }
             }
         }
@@ -53,6 +63,8 @@ namespace reversi
             clone.currStatus.currTurn = this.currStatus.currTurn;
             clone.currStatus.gameEnded = this.currStatus.gameEnded;
             clone.currStatus.lastPassed = this.currStatus.lastPassed;
+            clone.bluePoints = bluePoints;
+            clone.redPoints = redPoints;
 
             clone.pieces = pieces;
             return clone;
@@ -273,14 +285,10 @@ namespace reversi
         /// <returns>The amount of squares with the given color</returns>
         public int Score(Piece color)
         {
-            int score = 0;
-            for (int x = 0; x < 8; ++x)
-                for (int y = 0; y < 8; ++y)
-                    if (this[x,y] == color)
-                    {
-                        ++score;
-                    }
-            return score;
+            if (color == Piece.Red)
+                return redPoints;
+            else
+                return bluePoints;
         }
 
         public override bool Equals(object obj)
