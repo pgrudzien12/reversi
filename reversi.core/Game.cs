@@ -21,7 +21,7 @@ namespace reversi
             _observers.Add(_playerBlue);
         }
 
-        public IPlayerController CurrentPlayer => Board.currStatus.currTurn == Piece.Blue ? _playerBlue : _playerRed;
+        public IPlayerController CurrentPlayer => Board.currTurn == Piece.Blue ? _playerBlue : _playerRed;
 
         public void AddObserver(IGameObserver observer)
         {
@@ -42,7 +42,7 @@ namespace reversi
                 {
                     await NotifyObserversOnMove(md);
                 }
-                if (Board.currStatus.gameEnded)
+                if (Board.gameEnded)
                 {
                     break;
                 }

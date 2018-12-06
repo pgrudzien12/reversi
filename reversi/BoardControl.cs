@@ -80,11 +80,11 @@ namespace reversi
 
         /// <summary>Whose turn it currently is</summary>
         public Piece CurrentTurn
-        { get { return board.currStatus.currTurn; } }
+        { get { return board.currTurn; } }
 
         /// <summary>Whether or not the game has ended</summary>
         public bool GameEnded
-        { get { return board.currStatus.gameEnded; } }
+        { get { return board.gameEnded; } }
 
         /// <summary>Whether or not to show hints</summary>
         public bool ShowHints
@@ -99,7 +99,7 @@ namespace reversi
 
         /// <summary>Whether or not the last player has passed</summary>
         public bool LastPassed
-        { get { return board.currStatus.lastPassed; } }
+        { get { return board.lastPassed; } }
 
 
 
@@ -184,7 +184,7 @@ namespace reversi
             }
 
             // Draw the highlighted square, but only if the game hasn't ended yet
-            if (board.currStatus.gameEnded)
+            if (board.gameEnded)
             {
                 Cursor = Cursors.Default;
             }
@@ -241,7 +241,7 @@ namespace reversi
             // Draw the hints (all possible moves)
             if (_showHints)
             {
-                MoveDescriptor[] validMoves = board.ValidMoves(board.currStatus.currTurn);
+                MoveDescriptor[] validMoves = board.ValidMoves(board.currTurn);
                 foreach (MoveDescriptor validMove in validMoves)
                 {
                     drawSmiley(pea.Graphics, Brushes.Gray, validMove.X * squareSize + 20, validMove.Y * squareSize + 20, squareSize / 4);

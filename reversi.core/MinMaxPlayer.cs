@@ -12,7 +12,7 @@ namespace reversi
 
         public Task<MoveDescriptor> MakeMove(Board board, CancellationToken cancellationToken)
         {
-            var me = board.currStatus.currTurn;
+            var me = board.currTurn;
             if (node == null)
                 node = new BoardTreeNode(board, Piece.None, me, default(MoveDescriptor), maxDepth);
             return Task.FromResult(node.GetBestMove(me));

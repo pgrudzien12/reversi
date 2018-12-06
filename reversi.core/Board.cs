@@ -6,7 +6,12 @@ namespace reversi
 {
     public class Board : IEquatable<Board>
     {
-
+        /// <summary>Whose turn it currently is</summary>
+        public Piece currTurn;
+        /// <summary>Whether or not the last player's turn was skipped because he couldn't move</summary>
+        public bool lastPassed;
+        /// <summary>Whether or not the game has ended</summary>
+        public bool gameEnded;
 
         /// <summary>The width of the board (don't change)</summary>
         public const byte WIDTH = 8;
@@ -17,8 +22,6 @@ namespace reversi
         /// <summary>The current pieces on the board</summary>
         private Vector128 pieces;
 
-        /// <summary>The current status of the game</summary>
-        public GameStatus currStatus = new GameStatus();
         int redPoints = 0;
         int bluePoints = 0;
         public Piece this[int x, int y]
@@ -78,9 +81,9 @@ namespace reversi
         internal Board Clone()
         {
             var clone = new Board();
-            clone.currStatus.currTurn = this.currStatus.currTurn;
-            clone.currStatus.gameEnded = this.currStatus.gameEnded;
-            clone.currStatus.lastPassed = this.currStatus.lastPassed;
+            clone.currTurn = currTurn;
+            clone.gameEnded = gameEnded;
+            clone.lastPassed = lastPassed;
             clone.bluePoints = bluePoints;
             clone.redPoints = redPoints;
 
@@ -100,7 +103,7 @@ namespace reversi
         /// <returns>Whether the move succeeded or not</returns>
         public bool MakeMove(int col, int row)
         {
-            return MakeMove(col, row, currStatus.currTurn);
+            return MakeMove(col, row, currTurn);
         }
 
 
@@ -179,22 +182,22 @@ namespace reversi
             this[(byte)col, (byte)row] = color;
 
             // If the next player can't play, let him skip the turn
-            if (ValidMoves((currStatus.currTurn == Piece.Red ? Piece.Blue : Piece.Red), true).Length == 0)
+            if (ValidMoves((currTurn == Piece.Red ? Piece.Blue : Piece.Red), true).Length == 0)
             {
                 // Check if the game has ended
-                if (ValidMoves(currStatus.currTurn, true).Length == 0)
+                if (ValidMoves(currTurn, true).Length == 0)
                 {
-                    currStatus.gameEnded = true;
+                    gameEnded = true;
                 }
                 else
                 {
-                    currStatus.lastPassed = true;
+                    lastPassed = true;
                 }
             }
             else
             {
-                currStatus.currTurn = currStatus.currTurn == Piece.Red ? Piece.Blue : Piece.Red;
-                currStatus.lastPassed = false;
+                currTurn = currTurn == Piece.Red ? Piece.Blue : Piece.Red;
+                lastPassed = false;
             }
 
             // Since we've come here, the move must have been valid
@@ -214,9 +217,9 @@ namespace reversi
             this[WIDTH / 2, HEIGHT / 2] = Piece.Blue;
 
             // Initialize a new game status
-            currStatus.currTurn = Piece.Red;
-            currStatus.gameEnded = false;
-            currStatus.lastPassed = false;
+            currTurn = Piece.Red;
+            gameEnded = false;
+            lastPassed = false;
         }
 
         static Board()

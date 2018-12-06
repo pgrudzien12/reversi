@@ -35,11 +35,11 @@ namespace reversi
             for (int i = 0; i < validMoves.Length; i++)
             {
                 Board newBoard = Board.Clone();
-                var whoMakesMove = Board.currStatus.currTurn;
+                var whoMakesMove = Board.currTurn;
                 newBoard.MakeMove(validMoves[i]);
-                if (newBoard.currStatus.lastPassed)
+                if (newBoard.lastPassed)
                 {
-                    var node = new BoardTreeNode(newBoard, whoMakesMove, newBoard.currStatus.currTurn, validMoves[i], maxDepth);
+                    var node = new BoardTreeNode(newBoard, whoMakesMove, newBoard.currTurn, validMoves[i], maxDepth);
                     if (subDepth == 6 || !node.GetChildren(subDepth + 1).Any())
                     {
                         node.Leaf = true;
@@ -57,7 +57,7 @@ namespace reversi
                 }
                 else
                 {
-                    var node = new BoardTreeNode(newBoard, whoMakesMove, newBoard.currStatus.currTurn, validMoves[i], maxDepth);
+                    var node = new BoardTreeNode(newBoard, whoMakesMove, newBoard.currTurn, validMoves[i], maxDepth);
                     list.Add(node);
                 }
             }
