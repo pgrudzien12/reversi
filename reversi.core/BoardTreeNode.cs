@@ -29,7 +29,6 @@ namespace reversi
         {
             if (children != null)
                 return children;
-            Debug.WriteLineIf(subDepth > 0, "Counting subDepth = " + subDepth);
             var list = new List<BoardTreeNode>();
             var validMoves = Board.ValidMoves(WhoWillMove);
 

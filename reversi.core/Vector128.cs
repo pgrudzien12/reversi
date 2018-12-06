@@ -6,6 +6,18 @@ namespace reversi
     {
         ulong half1;
         ulong half2;
+ 
+        static ulong[] shift = new ulong[64];
+        static ulong[] shiftN = new ulong[64];
+        static Vector128()
+        {
+            for (int i = 0; i < 64; i++)
+            {
+                shift[i] = 1UL << i;
+                shiftN[i] = ~(1UL << i);
+            }
+        }
+
         public byte this[int pos]
         {
             get
@@ -13,14 +25,14 @@ namespace reversi
                 if (pos >= 64)
                 {
                     pos -= 64;
-                    if ((half2 & (1UL << pos)) > 0UL)
+                    if ((half2 & shift[pos]) > 0UL)
                         return 1;
                     else
                         return 0;
                 }
                 else
                 {
-                    if ((half1 & (1UL << pos)) > 0UL)
+                    if ((half1 & shift[pos]) > 0UL)
                         return 1;
                     else
                         return 0;
@@ -32,16 +44,16 @@ namespace reversi
                 {
                     pos -= 64;
                     if (value == 0)
-                        half2 &= ~(1UL << pos);
+                        half2 &= shiftN[pos];
                     else
-                        half2 |= (1UL << pos);
+                        half2 |= shift[pos];
                 }
                 else
                 {
                     if (value == 0)
-                        half1 &= ~(1UL << pos);
+                        half1 &= shiftN[pos];
                     else
-                        half1 |= (1UL << pos);
+                        half1 |= shift[pos];
                 }
             }
         }
