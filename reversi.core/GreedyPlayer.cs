@@ -10,7 +10,7 @@ namespace reversi
     {
         public Task<MoveDescriptor> MakeMove(Board board, CancellationToken cancellationToken)
         {
-            var me = board.currStatus.currTurn;
+            var me = board.CurrTurn;
 
             MoveDescriptor bestMove;
             int bestScore = FindLocallyBestMove(board, me, out bestMove);

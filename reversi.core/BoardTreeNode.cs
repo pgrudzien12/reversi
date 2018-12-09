@@ -29,18 +29,17 @@ namespace reversi
         {
             if (children != null)
                 return children;
-            Debug.WriteLineIf(subDepth > 0, "Counting subDepth = " + subDepth);
             var list = new List<BoardTreeNode>();
             var validMoves = Board.ValidMoves(WhoWillMove);
 
             for (int i = 0; i < validMoves.Length; i++)
             {
                 Board newBoard = Board.Clone();
-                var whoMakesMove = Board.currStatus.currTurn;
+                var whoMakesMove = Board.CurrTurn;
                 newBoard.MakeMove(validMoves[i]);
-                if (newBoard.currStatus.lastPassed)
+                if (newBoard.LastPassed)
                 {
-                    var node = new BoardTreeNode(newBoard, whoMakesMove, newBoard.currStatus.currTurn, validMoves[i], maxDepth);
+                    var node = new BoardTreeNode(newBoard, whoMakesMove, newBoard.CurrTurn, validMoves[i], maxDepth);
                     if (subDepth == 6 || !node.GetChildren(subDepth + 1).Any())
                     {
                         node.Leaf = true;
@@ -58,7 +57,7 @@ namespace reversi
                 }
                 else
                 {
-                    var node = new BoardTreeNode(newBoard, whoMakesMove, newBoard.currStatus.currTurn, validMoves[i], maxDepth);
+                    var node = new BoardTreeNode(newBoard, whoMakesMove, newBoard.CurrTurn, validMoves[i], maxDepth);
                     list.Add(node);
                 }
             }

@@ -6,62 +6,99 @@ namespace reversi
 {
     public class Board : IEquatable<Board>
     {
-
-
         /// <summary>The width of the board (don't change)</summary>
-        public const int WIDTH = 8;
+        private const byte WIDTH = 8;
 
         /// <summary>The height of the board (dont' change)</summary>
-        public const int HEIGHT = 8;
+        private const byte HEIGHT = 8;
 
         /// <summary>The current pieces on the board</summary>
         private Vector128 pieces;
+        private int redPoints;
+        private int bluePoints;
 
-        /// <summary>The current status of the game</summary>
-        public GameStatus currStatus = new GameStatus();
-        public Piece this[int x, int y]
+        public Piece this[byte pos]
         {
             get
             {
-                var pos = (y << 4) + x;
-                return (Piece)(pieces[pos] + pieces[pos + 8]);
+                return (Piece)(pieces[pos] + pieces[(byte)(pos + 8)]);
             }
-            private set
+            set
             {
-                var pos = (y << 4) + x;
-
+                var pos8 = (byte)(pos + 8);
+                if (pieces[pos] == 1)
+                {
+                    if (pieces[pos8] == 0)
+                    {
+                        redPoints--;
+                    }
+                    else
+                    {
+                        bluePoints--;
+                    }
+                }
                 if (value == Piece.None)
                 {
                     pieces[pos] = 0;
-                    pieces[pos + 8] = 0;
-                }else if (value == Piece.Red)
+                    pieces[pos8] = 0;
+                }
+                else if (value == Piece.Red)
                 {
                     pieces[pos] = 1;
-                    pieces[pos + 8] = 0;
+                    pieces[pos8] = 0;
+                    redPoints++;
                 }
                 else if (value == Piece.Blue)
                 {
                     pieces[pos] = 1;
-                    pieces[pos + 8] = 1;
+                    pieces[pos8] = 1;
+                    bluePoints++;
                 }
+            }
+        }
+
+        public Piece this[int x, int y]
+        {
+            get
+            {
+                return this[(byte)x, (byte)y];
+            }
+            set
+            {
+                this[(byte)x, (byte)y] = value;
+            }
+        }
+
+        public Piece this[byte x, byte y]
+        {
+            get
+            {
+                var pos = (byte)((y << 4) + x);
+                return this[pos];
+            }
+            private set
+            {
+                var pos = (byte)((y << 4) + x);
+                this[pos] = value;
             }
         }
 
         internal Board Clone()
         {
             var clone = new Board();
-            clone.currStatus.currTurn = this.currStatus.currTurn;
-            clone.currStatus.gameEnded = this.currStatus.gameEnded;
-            clone.currStatus.lastPassed = this.currStatus.lastPassed;
+            clone.CurrTurn = CurrTurn;
+            clone.GameEnded = GameEnded;
+            clone.LastPassed = LastPassed;
+            clone.bluePoints = bluePoints;
+            clone.redPoints = redPoints;
 
             clone.pieces = pieces;
             return clone;
         }
 
-        private static Vector128 NewBoard(bool setToZero)
+        private static Vector128 NewBoard()
         {
-            var b = new Vector128();
-            return b;
+            return new Vector128();
         }
 
 
@@ -69,15 +106,9 @@ namespace reversi
         /// <param name="col">The column where the piece should be placed</param>
         /// <param name="row">The row where the piece should be placed</param>
         /// <returns>Whether the move succeeded or not</returns>
-        public bool MakeMove(int col, int row)
-        {
-            return MakeMove(col, row, currStatus.currTurn);
-        }
-
-
         public bool MakeMove(MoveDescriptor md)
         {
-            return MakeMove(md.X, md.Y);
+            return MakeMove(md, CurrTurn);
         }
 
         /// <summary>Makes the given move for the given color</summary>
@@ -85,7 +116,7 @@ namespace reversi
         /// <param name="row">The row where the piece should be placed</param>
         /// <param name="color">The color whose move it is</param>
         /// <returns>Whether the move succeeded or not</returns>
-        public bool MakeMove(int col, int row, Piece color)
+        public bool MakeMove(MoveDescriptor md, Piece color)
         {
             // Making no move at all is always invalid
             if (color == Piece.None)
@@ -93,53 +124,47 @@ namespace reversi
                 return false;
             }
 
-            int pos = (row >> 4) + col;
-
-
             // Check if `col` and `row` are in the boundaries of the board and if (`col`, `row`) is an empty square
-            if (col < 0 || row < 0 || col >= WIDTH || row >= HEIGHT || this[col, row] != Piece.None)
+            if ((md.Position & 0x88) > 0 || pieces[md.Position] != 0)
             {
                 return false;
             }
 
+            int colorNo = color == Piece.Red ? 0 : 1;
             // Flip over the pieces of the other color that become enclosed between two pieces of `color`
             bool piecesFlipped = false;                 // Whether or not some pieces are flipped over
-            for (int dx = -1; dx <= 1; ++dx)
+
+            for (int j = 0; j < bishopMoves.Length; j++)
             {
-                for (int dy = -1; dy <= 1; ++dy)
+                byte currPos = md.Position;
+                byte currMove = bishopMoves[j];
+                // Determine the amount of steps that we should go in the current direction until we encounter a piece of our own color
+                // Then, if we find a piece of our own color, flip over all pieces in between
+                // If we do encounter such a piece, or if we encounter an empty square first, we won't flip over any pieces
+                for (int steps = 1; steps <= 7; ++steps)
                 {
-                    if (dx == 0 && dy == 0)
+                    currPos += currMove;
+                    if (((currPos & 0x88) > 0) || pieces[currPos] == 0)
                     {
-                        continue;
+                        break;
                     }
 
-                    // Determine the amount of steps that we should go in the current direction until we encounter a piece of our own color
-                    // Then, if we find a piece of our own color, flip over all pieces in between
-                    // If we do encounter such a piece, or if we encounter an empty square first, we won't flip over any pieces
-                    for (int steps = 1; steps <= 8; ++steps)
+                    if (pieces[(byte)(currPos + 8)] == colorNo)
                     {
-                        int currX = col + steps * dx;
-                        int currY = row + steps * dy;
-                        if (currX < 0 || currX >= WIDTH || currY < 0 || currY >= HEIGHT || this[currX, currY] == Piece.None)
+                        if (steps > 1)
                         {
-                            break;
+                            piecesFlipped = true;
+                        }
+                        byte innerPos = md.Position;
+                        for (int i = 1; i < steps; ++i)
+                        {
+                            innerPos += currMove;
+                            this[innerPos] = color;
                         }
 
-                        if (this[currX, currY] == color)
-                        {
-                            if (steps > 1)
-                            {
-                                piecesFlipped = true;
-                            }
-
-                            for (int i = 1; i < steps; ++i)
-                            {
-                                this[col + i * dx, row + i * dy] = color;
-                            }
-
-                            break;
-                        }
+                        break;
                     }
+
                 }
             }
 
@@ -150,25 +175,25 @@ namespace reversi
             }
 
             // Now we only need to place the new piece
-            this[col, row] = color;
+            this[md.Position] = color;
 
             // If the next player can't play, let him skip the turn
-            if (ValidMoves((currStatus.currTurn == Piece.Red ? Piece.Blue : Piece.Red), true).Length == 0)
+            if (ValidMoves((CurrTurn == Piece.Red ? Piece.Blue : Piece.Red), true).Length == 0)
             {
                 // Check if the game has ended
-                if (ValidMoves(currStatus.currTurn, true).Length == 0)
+                if (ValidMoves(CurrTurn, true).Length == 0)
                 {
-                    currStatus.gameEnded = true;
+                    GameEnded = true;
                 }
                 else
                 {
-                    currStatus.lastPassed = true;
+                    LastPassed = true;
                 }
             }
             else
             {
-                currStatus.currTurn = currStatus.currTurn == Piece.Red ? Piece.Blue : Piece.Red;
-                currStatus.lastPassed = false;
+                CurrTurn = CurrTurn == Piece.Red ? Piece.Blue : Piece.Red;
+                LastPassed = false;
             }
 
             // Since we've come here, the move must have been valid
@@ -178,8 +203,9 @@ namespace reversi
         public void ClearBoard()
         {
             // Create an array of pieces where all pieces are set to Piece.None
-            pieces = NewBoard(true);
-            
+            pieces = NewBoard();
+            bluePoints = 0;
+            redPoints = 0;
             // Place the initial board.pieces in the middle of the board
             this[WIDTH / 2 - 1, HEIGHT / 2 - 1] = Piece.Blue;
             this[WIDTH / 2, HEIGHT / 2 - 1] = Piece.Red;
@@ -187,63 +213,72 @@ namespace reversi
             this[WIDTH / 2, HEIGHT / 2] = Piece.Blue;
 
             // Initialize a new game status
-            currStatus.currTurn = Piece.Red;
-            currStatus.gameEnded = false;
-            currStatus.lastPassed = false;
+            CurrTurn = Piece.Red;
+            GameEnded = false;
+            LastPassed = false;
         }
 
+        static Board()
+        {
+            unchecked
+            {
+                bishopMoves = new byte[] { 17, 16, 15, (byte)-17, (byte)-16, (byte)-15, (byte)-1, 1 };
+            }
+        }
+
+        private static byte[] bishopMoves;
+
+        public Piece CurrTurn { get; set; }
+        public bool LastPassed { get; set; }
+        public bool GameEnded { get; set; }
+        private static MoveDescriptor[] ZeroDescriptoArray = new MoveDescriptor[0];
+        private static MoveDescriptor[] NonZeroDescriptoArray = new MoveDescriptor[1];
 
         /// <summary>Returns all valid moves for a player</summary>
         /// <param name="color">The player whose moves we have to check</param>
         /// <returns>An array with all the valid moves for the player, empty if no moves possible</returns>
         public MoveDescriptor[] ValidMoves(Piece color, bool stopOnFirst = false)
         {
-
             // Making no move at all is always invalid
             if (color == Piece.None)
             {
-                return new MoveDescriptor[0];
+                return ZeroDescriptoArray;
             }
 
-            List<MoveDescriptor> Moves = new List<MoveDescriptor>();
-            for (int col = 0; col < WIDTH; ++col)
+            int colorNo = color == Piece.Red ? 0 : 1;
+            List<MoveDescriptor> moves = null;
+            if (!stopOnFirst)
+                moves = new List<MoveDescriptor>();
+            for (byte col = 0; col < WIDTH; ++col)
             {
-                for (int row = 0; row < HEIGHT; ++row)
+                for (byte row = 0; row < HEIGHT; ++row)
                 {
+                    byte pos = (byte)((row << 4) + col);
                     // Check if `col` and `row` are in the boundaries of the board and if (`col`, `row`) is an empty square
-                    if (this[col, row] != Piece.None)
+                    if (pieces[pos] != 0)
                     {
                         continue;
                     }
 
                     // Flip over the board.pieces of the other color that become enclosed between two board.pieces of `color`
                     bool piecesFlipped = false;                 // Whether or not some pieces are flipped over
-                    for (int dx = -1; dx <= 1; ++dx)
+                    for (int i = 0; i < bishopMoves.Length; i++)
                     {
-                        for (int dy = -1; dy <= 1; ++dy)
+                        byte currPos = pos;
+                        // Determine the amount of steps that we should go in the current direction until we encounter a piece of our own color
+                        // Then, if we find a piece of our own color, flip over all pieces in between
+                        // If we do encounter such a piece, or if we encounter an empty square first, we won't flip over any pieces
+                        for (int steps = 1; steps <= 7; ++steps)
                         {
-                            if (dx == 0 && dy == 0)
+                            currPos = (byte)(currPos + bishopMoves[i]);
+                            if (((currPos & 0x88) > 0) || pieces[currPos] == 0)
                             {
-                                continue;
+                                break;
                             }
-
-                            // Determine the amount of steps that we should go in the current direction until we encounter a piece of our own color
-                            // Then, if we find a piece of our own color, flip over all pieces in between
-                            // If we do encounter such a piece, or if we encounter an empty square first, we won't flip over any pieces
-                            for (int steps = 1; steps <= 8; ++steps)
+                            if (pieces[(byte)(currPos + 8)] == colorNo)
                             {
-                                int currX = col + steps * dx;
-                                int currY = row + steps * dy;
-                                if (currX < 0 || currX >= WIDTH || currY < 0 || currY >= HEIGHT || this[currX, currY] == Piece.None)
-                                {
-                                    break;
-                                }
-
-                                if (this[currX, currY] == color)
-                                {
-                                    piecesFlipped = piecesFlipped || steps > 1;
-                                    break;
-                                }
+                                piecesFlipped = piecesFlipped || steps > 1;
+                                break;
                             }
                         }
                     }
@@ -254,9 +289,11 @@ namespace reversi
                     // In that case we simply return false
                     if (piecesFlipped)
                     {
-                        Moves.Add(new MoveDescriptor(col, row));
                         if (stopOnFirst)
-                            return Moves.ToArray();
+                        {
+                            return NonZeroDescriptoArray;
+                        }
+                        moves.Add(new MoveDescriptor(pos));
                     }
                     else
                     {
@@ -264,8 +301,11 @@ namespace reversi
                     }
                 }
             }
-
-            return Moves.ToArray();
+            if (stopOnFirst)
+            {
+                return ZeroDescriptoArray;
+            }
+            return moves.ToArray();
         }
 
         /// <summary>Gives the score of the given color (i.e. the amount of squares with that color)</summary>
@@ -273,25 +313,21 @@ namespace reversi
         /// <returns>The amount of squares with the given color</returns>
         public int Score(Piece color)
         {
-            int score = 0;
-            for (int x = 0; x < 8; ++x)
-                for (int y = 0; y < 8; ++y)
-                    if (this[x,y] == color)
-                    {
-                        ++score;
-                    }
-            return score;
+            return color == Piece.Red ? redPoints : bluePoints;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object other)
         {
-            return Equals(obj as Board);
+            return this.Equals(other as Board);
         }
 
         public bool Equals(Board other)
         {
             if (other == null)
+            {
                 return false;
+            }
+
             return pieces == other.pieces;
         }
 
@@ -313,9 +349,9 @@ namespace reversi
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            for (int y = 0; y < HEIGHT; y++)
+            for (byte y = 0; y < HEIGHT; y++)
             {
-                for (int x = 0; x < WIDTH; x++)
+                for (byte x = 0; x < WIDTH; x++)
                 {
                     char c = '_';
                     switch (this[x, y])
@@ -334,47 +370,6 @@ namespace reversi
                 sb.AppendLine();
             }
             return sb.ToString();
-        }
-    }
-    public struct MoveDescriptor
-    {
-        public MoveDescriptor(int col, int row)
-        {
-            X = col;
-            Y = row;
-        }
-
-        public int X { get; }
-        public int Y { get; }
-
-        public override bool Equals(object obj)
-        {
-            if (!(obj is MoveDescriptor))
-            {
-                return false;
-            }
-
-            var descriptor = (MoveDescriptor)obj;
-            return X == descriptor.X &&
-                   Y == descriptor.Y;
-        }
-
-        public override int GetHashCode()
-        {
-            var hashCode = 1861411795;
-            hashCode = hashCode * -1521134295 + X.GetHashCode();
-            hashCode = hashCode * -1521134295 + Y.GetHashCode();
-            return hashCode;
-        }
-
-        public static bool operator ==(MoveDescriptor descriptor1, MoveDescriptor descriptor2)
-        {
-            return descriptor1.Equals(descriptor2);
-        }
-
-        public static bool operator !=(MoveDescriptor descriptor1, MoveDescriptor descriptor2)
-        {
-            return !(descriptor1 == descriptor2);
         }
     }
 }

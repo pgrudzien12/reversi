@@ -8,15 +8,15 @@ namespace reversi
 {
     public partial class BoardControl : Control, IPlayerController
     {
-        private int WIDTH = Board.WIDTH;
-        private int HEIGHT = Board.HEIGHT;
+        private int WIDTH = 8;
+        private int HEIGHT = 8;
 
-        public Board board  = new Board();
+        public Board board = new Board();
         private TaskCompletionSource<MoveDescriptor> tcs1;
 
         internal void MakeMove(int x, int y)
         {
-            if (board.MakeMove(x, y))
+            if (board.MakeMove(new MoveDescriptor(x, y)))
             {
                 RefreshBoard();
             }
@@ -80,11 +80,11 @@ namespace reversi
 
         /// <summary>Whose turn it currently is</summary>
         public Piece CurrentTurn
-        { get { return board.currStatus.currTurn; } }
+        { get { return board.CurrTurn; } }
 
         /// <summary>Whether or not the game has ended</summary>
         public bool GameEnded
-        { get { return board.currStatus.gameEnded; } }
+        { get { return board.GameEnded; } }
 
         /// <summary>Whether or not to show hints</summary>
         public bool ShowHints
@@ -99,7 +99,7 @@ namespace reversi
 
         /// <summary>Whether or not the last player has passed</summary>
         public bool LastPassed
-        { get { return board.currStatus.lastPassed; } }
+        { get { return board.LastPassed; } }
 
 
 
@@ -184,7 +184,7 @@ namespace reversi
             }
 
             // Draw the highlighted square, but only if the game hasn't ended yet
-            if (board.currStatus.gameEnded)
+            if (board.GameEnded)
             {
                 Cursor = Cursors.Default;
             }
@@ -241,7 +241,7 @@ namespace reversi
             // Draw the hints (all possible moves)
             if (_showHints)
             {
-                MoveDescriptor[] validMoves = board.ValidMoves(board.currStatus.currTurn);
+                MoveDescriptor[] validMoves = board.ValidMoves(board.CurrTurn);
                 foreach (MoveDescriptor validMove in validMoves)
                 {
                     drawSmiley(pea.Graphics, Brushes.Gray, validMove.X * squareSize + 20, validMove.Y * squareSize + 20, squareSize / 4);

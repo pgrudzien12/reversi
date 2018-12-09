@@ -11,7 +11,7 @@ namespace reversi
     {
         public Task<MoveDescriptor> MakeMove(Board board, CancellationToken cancellationToken)
         {
-            return Task.FromResult(board.ValidMoves(board.currStatus.currTurn)[0]);
+            return Task.FromResult(board.ValidMoves(board.CurrTurn)[0]);
         }
 
         public Task OnMove(Board b, MoveDescriptor md)
