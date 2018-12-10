@@ -14,4 +14,8 @@
     <PackageReference Include="Accord.Statistics" Version="3.8.2-alpha" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\reversi.core\reversi.core.csproj" />
+  </ItemGroup>
+
 </Project>

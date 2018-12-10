@@ -95,9 +95,9 @@
     <Content Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\reversi.core\reversi.core2.csproj">
-      <Project>{60e987f0-b4c7-4070-bd74-903c95bffdf1}</Project>
-      <Name>reversi.core2</Name>
+    <ProjectReference Include="..\reversi.core\reversi.core.csproj">
+      <Project>{7f751cf0-4af4-49b0-83b3-badb4d866306}</Project>
+      <Name>reversi.core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

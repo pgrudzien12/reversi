@@ -40,7 +40,6 @@ namespace reversi.ai
             : base(30, new Mind(), new DullFunction(), new EliteSelection())
         {
             FitnessFunction = this;
-
         }
 
         public override void Selection()
